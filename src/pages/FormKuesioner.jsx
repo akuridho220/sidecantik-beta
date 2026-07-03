@@ -3,7 +3,18 @@ import { useState } from 'react';
 
 export default function FormKuesioner() {
   const navigate = useNavigate();
-  const [showAlert, setShowAlert] = useState(false);
+  const [toast, setToast] = useState({
+    show: false,
+    message: '',
+    type: 'success'
+  });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 2000);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -25,11 +36,10 @@ export default function FormKuesioner() {
 
     localStorage.setItem('kuesioner', JSON.stringify(updatedData));
 
-    setShowAlert(true);
+    showToast('Data berhasil disimpan ✅');
 
     // Redirect
     setTimeout(() => {
-      setShowAlert(false);
       navigate('/list');
     }, 2000);
   };
@@ -38,9 +48,10 @@ export default function FormKuesioner() {
     <div className="flex flex-col gap-4">
       <h2 className="text-xl font-bold text-gray-800 border-b pb-2">Form Kuesioner</h2>
       
-      {showAlert && (
-        <div className="absolute top-0 left-0 right-0 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-md shadow-md animate-fade-in">
-          ✅ Data berhasil disimpan (offline-ready)
+      {toast.show && (
+        <div className={`fixed top-5 right-5 px-4 py-3 rounded-md text-white z-50
+          ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+          {toast.message}
         </div>
       )}
 
