@@ -5,6 +5,11 @@ import { supabase } from '../lib/supabase';
 
 export default function ListKuesioner() {
   const [kuesionerData, setKuesionerData] = useState([]);
+  const [toast, setToast] = useState({
+    show: false,
+    message: '',
+    type: 'success'
+  });
 
   useEffect(() => {
     loadLocalData();
@@ -69,13 +74,29 @@ export default function ListKuesioner() {
 
       localStorage.setItem('kuesioner', JSON.stringify(merged));
 
-      alert('Sync berhasil (merge aman) 🚀');
+      setToast({
+        show: true,
+        message: 'Sync berhasil (merge aman) 🚀',
+        type: 'success'
+      });
+
+      setTimeout(() => {
+        setToast(prev => ({ ...prev, show: false }));
+      }, 2000);
 
       loadLocalData();
 
     } catch (err) {
       console.error(err);
-      alert('Sync gagal ❌');
+      setToast({
+        show: true,
+        message: 'Sync gagal ❌',
+        type: 'error'
+      });
+
+      setTimeout(() => {
+        setToast(prev => ({ ...prev, show: false }));
+      }, 2000);
     }
   };
 
@@ -84,6 +105,17 @@ export default function ListKuesioner() {
       <h2 className="text-xl font-bold text-gray-800 border-b pb-2">
         Daftar Response
       </h2>
+
+      {toast.show && (
+        <div className={`fixed top-5 right-5 px-4 py-3 rounded-md shadow-lg text-white z-50
+          ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+          
+          <div className="flex items-center gap-2">
+            <span>{toast.type === 'success' ? '✅' : '❌'}</span>
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
 
       <div className="overflow-x-auto mt-2">
         <div className='my-4 flex justify-between'>
