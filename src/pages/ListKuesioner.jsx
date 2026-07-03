@@ -186,7 +186,7 @@ export default function ListKuesioner() {
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="text-center p-5 text-gray-500">
+                <td colSpan="5" className="text-center p-5 text-gray-500">
                   Belum ada data
                 </td>
               </tr>
