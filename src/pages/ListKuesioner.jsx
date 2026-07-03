@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -8,6 +8,8 @@ export default function ListKuesioner() {
   const [kuesionerData, setKuesionerData] = useState([]);
   const [editingData, setEditingData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+
+  const navigate = useNavigate();
 
   const [toast, setToast] = useState({
     show: false,
@@ -32,8 +34,8 @@ export default function ListKuesioner() {
   };
 
   // EDIT
-  const handleEdit = (item) => {
-    setEditingData(item);
+  const handleEdit = (id) => {
+    navigate(`/form?id=${id}`);
   };
 
   // DELETE
@@ -166,13 +168,13 @@ export default function ListKuesioner() {
                   <td className="p-2">{item.name}</td>
                   <td className="p-2 text-center">{item.message}</td>
                   <td className="p-2 text-center">{item.synced ? "✅" : "⏳"}</td>
-                  <td className="flex gap-2 justify-center items-center py-3">
-                    {/* <button
-                      onClick={() => handleEdit(item)}
-                      className="bg-yellow-400 px-2 py-1 rounded"
+                  <td className="gap-2 py-3 h-full text-center flex-1">
+                    <button
+                      onClick={() => handleEdit(item.id)}
+                      className="bg-yellow-400 text-white px-2 py-1 rounded"
                     >
-                      Edit
-                    </button> */}
+                      <Pencil size={18} />
+                    </button>
                     <button
                       onClick={() => setDeleteId(item.id)}
                       className="bg-red-500 text-white px-2 py-1 rounded"
