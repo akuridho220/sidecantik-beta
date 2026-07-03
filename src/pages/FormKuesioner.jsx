@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function FormKuesioner() {
   const navigate = useNavigate();
@@ -61,6 +61,12 @@ export default function FormKuesioner() {
           Kirim Jawaban
         </button>
       </form>
+      <Link 
+        to="/list" 
+        className="bg-red-500 text-white px-3 py-3 rounded-md text-center"
+      >
+        Cancel
+      </Link>
     </div>
   );
 }

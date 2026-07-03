@@ -130,6 +130,13 @@ export default function ListKuesioner() {
           </tbody>
         </table>
       </div>
+
+      <Link 
+        to="/" 
+        className="bg-slate-500 text-white px-3 py-2 rounded-md text-center"
+      >
+        Kembali ke Halaman Utama
+      </Link>
     </div>
   );
 }
