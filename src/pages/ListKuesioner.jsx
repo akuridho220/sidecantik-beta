@@ -33,7 +33,7 @@ export default function ListKuesioner() {
           .insert(
             unsynced.map(item => ({
               id: item.id,
-              name: item.nama,
+              name: item.name,
               message: item.message
             }))
           ).select();
@@ -147,7 +147,7 @@ export default function ListKuesioner() {
               kuesionerData.map((item, index) => (
                 <tr key={item.id} className="border-b">
                   <td className="p-3 text-center">{index + 1}</td>
-                  <td className="p-3">{item.nama}</td>
+                  <td className="p-3">{item.name}</td>
                   <td className="p-3 text-center">{item.message}</td>
                   <td className="p-3 text-center">{item.synced ? "✅" : "⏳"}</td>
                 </tr>

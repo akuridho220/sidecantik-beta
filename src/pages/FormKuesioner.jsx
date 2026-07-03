@@ -9,7 +9,7 @@ export default function FormKuesioner() {
     e.preventDefault();
 
     const form = e.target;
-    const name = form.nama.value;
+    const name = form.name.value;
     const message = form.message.value;
 
     const newData = {
@@ -43,7 +43,7 @@ export default function FormKuesioner() {
           ✅ Data berhasil disimpan (offline-ready)
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
         <div className="flex flex-col gap-1">
           <label className="text-sm font-semibold text-gray-700">Nama Anda:</label>
