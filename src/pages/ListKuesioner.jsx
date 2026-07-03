@@ -2,54 +2,82 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
-const handleSync = async () => {
-  const localData = JSON.parse(localStorage.getItem('kuesioner')) || [];
-
-  // Ambil hanya yang belum sync
-  const unsynced = localData.filter(item => !item.synced);
-
-  if (unsynced.length === 0) {
-    alert('Tidak ada data untuk disinkronkan');
-    return;
-  }
-
-  try {
-    // Kirim ke Supabase
-    const { error } = await supabase
-      .from('response')
-      .insert(
-        unsynced.map(item => ({
-          name: item.nama,
-          message: item.message
-        }))
-      );
-
-    if (error) throw error;
-
-    // Tandai sudah sync
-    const updated = localData.map(item => ({
-      ...item,
-      synced: true
-    }));
-
-    localStorage.setItem('kuesioner', JSON.stringify(updated));
-
-    alert('Sync berhasil 🚀');
-    window.location.reload();
-
-  } catch (err) {
-    console.error(err);
-    alert('Sync gagal ❌');
-  }
-};
 
 export default function ListKuesioner() {
   const [kuesionerData, setKuesionerData] = useState([]);
 
   useEffect(() => {
+    loadLocalData();
+  }, []);
+
+  const loadLocalData = () => {
     const data = JSON.parse(localStorage.getItem('kuesioner')) || [];
     setKuesionerData(data);
-  }, []);
+  };
+
+  // Synchron database
+  const handleSync = async () => {
+    try {
+      let localData = JSON.parse(localStorage.getItem('kuesioner')) || [];
+
+      const unsynced = localData.filter(item => !item.synced);
+
+      if (unsynced.length > 0) {
+        let { data: insertedData, insertError } = await supabase
+          .from("response")
+          .insert(
+            unsynced.map(item => ({
+              id: item.id,
+              name: item.nama,
+              message: item.message
+            }))
+          ).select();
+
+        if (insertError) throw insertError;
+
+        if (!insertedData) {
+          console.warn("Tidak ada data kembali dari insert");
+          insertedData = [];
+        }
+
+        localData = localData.map(localItem => {
+          const isUploaded = insertedData.find(d => d.id === localItem.id);
+          if (isUploaded) {
+            return { ...localItem, synced: true };
+          }
+          return localItem;
+        });
+      }
+
+      const { data: serverData, error: fetchError } = await supabase
+        .from('response')
+        .select('*');
+
+      if (fetchError) throw fetchError;
+
+      const merged = [...localData];
+
+      serverData.forEach(serverItem => {
+        const exists = merged.find(item => item.id === serverItem.id);
+        if (!exists) {
+          merged.push({
+            ...serverItem,
+            synced: true
+          });
+        }
+      });
+
+      localStorage.setItem('kuesioner', JSON.stringify(merged));
+
+      alert('Sync berhasil (merge aman) 🚀');
+
+      loadLocalData();
+
+    } catch (err) {
+      console.error(err);
+      alert('Sync gagal ❌');
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">

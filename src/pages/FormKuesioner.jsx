@@ -11,24 +11,20 @@ export default function FormKuesioner() {
     const message = form.message.value;
 
     const newData = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       nama,
       message,
       synced: false
     };
 
-    // Ambil data lama dari localStorage
     const existingData = JSON.parse(localStorage.getItem('kuesioner')) || [];
 
-    // Tambahkan data baru
     const updatedData = [...existingData, newData];
 
-    // Simpan kembali
     localStorage.setItem('kuesioner', JSON.stringify(updatedData));
 
-    alert('Terima kasih! Kuesioner berhasil dikirim.');
+    alert('Data berhasil disimpan (offline-ready) ✅');
 
-    // Redirect ke halaman list
     navigate('/list');
   };
 
