@@ -74,7 +74,7 @@ export default function FormKuesioner() {
         </button>
       </form>
       <Link 
-        to="/list" 
+        to="/" 
         className="bg-red-500 text-white px-3 py-3 rounded-md text-center"
       >
         Cancel

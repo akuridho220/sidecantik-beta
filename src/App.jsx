@@ -7,7 +7,7 @@ import InstallButton from "./components/InstallButton";
 function App() {
   return (
     <Router>
-      <div className="w-full max-w-md min-h-screen bg-white shadow-xl p-6 relative">
+      <div className="w-full max-w-md min-h-screen bg-[#f4f4f3] shadow-xl p-6 relative">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/list" element={<ListKuesioner />} />
