@@ -1,6 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Home() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('userData');
+    
+    navigate('/login');
+  };
   return (
     <div className="flex flex-col items-center justify-center text-center min-h-[80vh] px-4">
 
@@ -37,6 +44,12 @@ export default function Home() {
             📊 Lihat Data
           </Link>
         </div>
+        <button 
+          onClick={handleLogout}
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded"
+        >
+          Keluar (Logout)
+        </button>
       </div>
     </div>
   );
