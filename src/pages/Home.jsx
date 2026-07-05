@@ -30,26 +30,27 @@ export default function Home() {
 
         {/* CTA Buttons */}
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
+          {/* <Link
             to="/form"
             className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition"
           >
             ✍️ Isi Kuesioner
-          </Link>
+          </Link> */}
 
           <Link
-            to="/list"
+            to="/list-keluarga"
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition"
           >
-            📊 Lihat Data
+            📊 Lihat Data SLS
           </Link>
+          <button 
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg transition"
+          >
+            Keluar (Logout)
+          </button>
         </div>
-        <button 
-          onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded"
-        >
-          Keluar (Logout)
-        </button>
+        
       </div>
     </div>
   );

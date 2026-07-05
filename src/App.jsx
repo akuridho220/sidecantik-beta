@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import ListKuesioner from './pages/ListKuesioner';
-import FormKuesioner from './pages/FormKuesioner';
+import ListKeluarga from './pages/ListKeluarga';
+import FormKeluarga from './pages/FormKeluarga';
 import InstallButton from "./components/InstallButton";
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -16,8 +16,8 @@ function App() {
           {/* Protected */}
           <Route element={<ProtectedRoute/>}>
             <Route path="/" element={<Home />} />
-            <Route path="/list" element={<ListKuesioner />} />
-            <Route path="/form" element={<FormKuesioner />} />
+            <Route path="/list-keluarga" element={<ListKeluarga />} />
+            <Route path="/form-keluarga" element={<FormKeluarga />} />
           </Route>
         </Routes>
       </div>
