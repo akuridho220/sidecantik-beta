@@ -6,7 +6,7 @@ import InstallButton from "./components/InstallButton";
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import DetailKeluarga from './pages/DetailKeluarga';
-import FormAnggotaKeluarga from './pages/FormAnggotaKeluarga';
+import FormulirBlok2 from './pages/FormulirBlok2';
 
 function App() {
   return (
@@ -20,8 +20,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/list-keluarga" element={<ListKeluarga />} />
             <Route path="/form/blok1" element={<FormulirBlok1 />} />
-            <Route path="/detail-keluarga" element={<DetailKeluarga />} />
-            <Route path="/form-anggota-keluarga" element={<FormAnggotaKeluarga />} />
+            <Route path="/form/blok2" element={<FormulirBlok2 />} />
           </Route>
         </Routes>
       </div>

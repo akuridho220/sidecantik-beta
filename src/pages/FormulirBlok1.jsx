@@ -36,9 +36,14 @@ export default function FormIdentitasWilayah() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    localStorage.setItem('identitas_wilayah', JSON.stringify(formData));
+    const dataDisimpan = {
+      ...formData,
+      id_keluarga: idKeluarga
+    };
     
-    navigate('/form-blok-2');
+    localStorage.setItem('identitas_wilayah', JSON.stringify(dataDisimpan));
+    
+    navigate(`/form/blok2?id_keluarga=${idKeluarga}`);
   };
 
   const handleBackClick = () => {
@@ -46,15 +51,12 @@ export default function FormIdentitasWilayah() {
   };
 
   return (
-    // min-h-screen memastikan tinggi minimal adalah 1 layar penuh
-    // flex & flex-col menyiapkan ruang jika konten lebih sedikit dari layar
     <div className="min-h-screen bg-slate-50 relative overflow-hidden flex flex-col">
       {/* Background Blobs (Ornamen Latar Belakang) */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
 
       {/* Konten Utama */}
-      {/* pb-28 (padding-bottom) sangat penting agar bagian paling bawah form tidak tertutup oleh footer! */}
       <div className="flex-1 w-full max-w-lg mx-auto p-4 md:p-8 relative z-10 pb-28 flex flex-col justify-center">
         
         <div className="bg-white/80 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-xl border border-white/30">
@@ -129,7 +131,6 @@ export default function FormIdentitasWilayah() {
           </button>
           
           {/* Tombol Kanan: Simpan & Lanjut */}
-          {/* form="form-blok-1" mengaitkan tombol ini dengan form di atas */}
           <button
             type="submit"
             form="form-blok-1"
@@ -150,9 +151,7 @@ export default function FormIdentitasWilayah() {
                 <AlertTriangle className="w-8 h-8 text-red-500" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-2">Yakin Ingin Keluar?</h3>
-              {/* <p className="text-slate-600 mb-6 text-sm">
-                Data identitas wilayah yang sudah kamu isi belum disimpan. Jika keluar sekarang, data tersebut akan hilang.
-              </p> */}
+              
               <div className="flex w-full gap-3">
                 <button
                   onClick={() => setShowExitModal(false)}
