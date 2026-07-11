@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MapPin, ArrowLeft, ArrowRight, AlertTriangle } from 'lucide-react';
 
 export default function FormIdentitasWilayah() {
@@ -10,6 +10,25 @@ export default function FormIdentitasWilayah() {
     nama_dusun: '',
     nama_rt: ''
   });
+
+  const [searchParams] = useSearchParams();
+  const idKeluarga = searchParams.get('id_keluarga');
+
+  useEffect(() => {
+    if (idKeluarga) {
+      const dataKeluargaLokal = JSON.parse(localStorage.getItem('keluarga')) || [];
+      
+      const keluargaSaatIni = dataKeluargaLokal.find(k => k.id_keluarga === idKeluarga);
+
+      if (keluargaSaatIni) {
+        setFormData({
+          nama_desa: keluargaSaatIni.nama_desa || '',
+          nama_dusun: keluargaSaatIni.nama_dusun || '',
+          nama_rt: keluargaSaatIni.nama_sls || '' 
+        });
+      }
+    }
+  }, [idKeluarga]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,13 +43,6 @@ export default function FormIdentitasWilayah() {
 
   const handleBackClick = () => {
     setShowExitModal(true);
-    // const isFormFilled = formData.nama_desa || formData.nama_dusun || formData.nama_rt;
-    
-    // if (isFormFilled) {
-    //   setShowExitModal(true); // Tampilkan modal jika ada isian
-    // } else {
-    //   navigate('/list-keluarga'); // Langsung keluar jika form masih kosong
-    // }
   };
 
   return (
@@ -113,7 +125,7 @@ export default function FormIdentitasWilayah() {
             className="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center space-x-2 border border-slate-200"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="inline">Kembali</span>
+            <span className="inline">Keluar</span>
           </button>
           
           {/* Tombol Kanan: Simpan & Lanjut */}
