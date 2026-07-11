@@ -1,112 +1,134 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, LogIn, AlertCircle, ShieldCheck, RefreshCw } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  // State tambahan untuk error dan loading
-  const [errorMsg, setErrorMsg] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // Reset pesan error dan mulai loading
-    setErrorMsg('');
+    setError('');
     setIsLoading(true);
 
     try {
+      // Memanggil API Login Backend yang sudah kita buat sebelumnya
       const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Gagal login, silakan coba lagi.');
+        throw new Error(data.message || 'Terjadi kesalahan, periksa kredensial Anda.');
       }
 
+      // Jika sukses, simpan data user (termasuk daftar_sls) ke localStorage
       localStorage.setItem('userData', JSON.stringify(data.user));
-      navigate('/');
       
-    } catch (error) {
-      setErrorMsg(error.message);
+      // Arahkan ke halaman utama
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh]">
-      <div className="w-full max-w-sm p-6 bg-white rounded-xl shadow-md border border-gray-100">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Masuk ke Akun <br /> SIDECANTIK</h2>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans relative overflow-hidden">
+      
+      {/* Ornamen Latar Belakang (Blob) untuk estetika */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-teal-400/20 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+
+      {/* Kartu Login */}
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl border border-gray-100 overflow-hidden relative z-10">
         
-        {/* Menampilkan kotak pesan error jika ada */}
-        {errorMsg && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-lg text-center">
-            {errorMsg}
+        {/* Header Kartu (Aksen Gradasi) */}
+        <div className="bg-gradient-to-r from-teal-400 to-blue-500 p-8 text-center text-white">
+          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+            <ShieldCheck size={32} className="text-white" />
           </div>
-        )}
+          <h1 className="text-2xl font-extrabold tracking-tight">SIDECANTIK</h1>
+          <p className="text-teal-50 text-sm mt-1 font-medium">Sistem Desa Cinta Statistik</p>
+        </div>
 
-        {/* <img 
-            src="/logo-512x512.png" 
-            alt="Logo SideCantik"
-            className="w-36 h-36 mb-4 object-contain"
-        /> */}
-        
-        <form onSubmit={handleLogin} className="flex flex-col gap-5">
-          {/* Input Email */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              placeholder="Masukkan email..."
-            />
+        {/* Form Login */}
+        <div className="p-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-6 text-center">Masuk ke Akun Anda</h2>
+
+          {/* Pesan Error */}
+          {error && (
+            <div className="flex items-start gap-2 bg-red-50 text-red-600 p-3 rounded-xl mb-5 text-sm border border-red-100">
+              <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
+              <p className="font-medium">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="flex flex-col gap-5">
+            
+            {/* Input Email */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-600 mb-1.5 ml-1">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-3 text-gray-400" size={20} />
+                <input 
+                  type="email" 
+                  required 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-all text-gray-700"
+                  placeholder="Masukkan email Anda"
+                />
+              </div>
+            </div>
+
+            {/* Input Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-600 mb-1.5 ml-1">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-3 text-gray-400" size={20} />
+                <input 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 focus:bg-white transition-all text-gray-700"
+                  placeholder="Masukkan password Anda"
+                />
+              </div>
+            </div>
+
+            {/* Tombol Login */}
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className={`w-full flex items-center justify-center gap-2 py-3.5 mt-2 rounded-xl text-white font-bold text-lg shadow-md transition-all
+                ${isLoading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 hover:shadow-lg hover:-translate-y-0.5'
+                }`}
+            >
+              {isLoading ? (
+                <RefreshCw size={22} className="animate-spin" />
+              ) : (
+                <LogIn size={22} />
+              )}
+              {isLoading ? 'Memverifikasi...' : 'Masuk Sekarang'}
+            </button>
+          </form>
+
+          {/* Ornamen Footer Form */}
+          <div className="mt-8 text-center">
+            <p className="text-xs text-gray-400 font-medium">Gunakan kredensial yang diberikan oleh Admin untuk mengakses sistem pendataan.</p>
           </div>
-
-          {/* Input Password */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-              placeholder="Masukkan password..."
-            />
-          </div>
-
-          {/* Tombol Login dengan efek Loading */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full text-white font-bold py-3 rounded-lg transition duration-200 mt-2 shadow-sm ${
-              isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {isLoading ? 'Memproses...' : 'Masuk'}
-          </button>
-        </form>
-
-        {/* <p className="mt-6 text-center text-sm text-gray-500">
-          Belum punya akun? <a href="/register" className="text-blue-500 hover:underline">Daftar di sini</a>
-        </p> */}
+        </div>
       </div>
     </div>
   );

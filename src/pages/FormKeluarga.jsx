@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 export default function FormKeluarga() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const id = searchParams.get('id');
+  const id_keluarga = searchParams.get('id'); // id di sini adalah id_keluarga
 
+  // Menyesuaikan state untuk menampung data Keluarga DAN Kepala Keluarga
   const [formData, setFormData] = useState({
-    nomor_kk: '',
+    no_kk: '',
     nik: '',
     nama: ''
   });
@@ -25,26 +26,26 @@ export default function FormKeluarga() {
     }, 1500);
   };
 
+  // 🔥 LOAD DATA JIKA MODE EDIT
   useEffect(() => {
-    if (id) {
+    if (id_keluarga) {
       const dataKeluarga = JSON.parse(localStorage.getItem('keluarga')) || [];
       const dataPenduduk = JSON.parse(localStorage.getItem('penduduk')) || [];
       
-      const foundKeluarga = dataKeluarga.find(item => item.id === id);
-
+      const foundKeluarga = dataKeluarga.find(item => item.id === id_keluarga);
       const foundKepalaKeluarga = dataPenduduk.find(
-        item => item.id_keluarga === id && item.hubungan_keluarga === 'KEPALA KELUARGA'
+        item => item.id_keluarga === id_keluarga && item.hubungan_keluarga === 'KEPALA KELUARGA'
       );
 
       if (foundKeluarga && foundKepalaKeluarga) {
         setFormData({
-          nomor_kk: foundKeluarga.nomor_kk || '',
+          no_kk: foundKeluarga.no_kk || '',
           nik: foundKepalaKeluarga.nik || '',
           nama: foundKepalaKeluarga.nama || ''
         });
       }
     }
-  }, [id]);
+  }, [id_keluarga]);
 
   const handleChange = (e) => {
     setFormData({
@@ -65,17 +66,35 @@ export default function FormKeluarga() {
                         ? userData.daftar_sls[0] 
                         : null;
 
-    let targetRedirectId = id;
+    // Identitas user dan waktu saat ini (diubah ke format string ISO/Datetime)
+    const currentUserId = userData ? userData.id : null; 
+    const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                        
+    let targetRedirectId = id_keluarga;
 
-    if (id) {
+    if (id_keluarga) {
+      // 🔥 MODE EDIT (Update dua tabel)
       const updatedKeluarga = existingKeluarga.map(item =>
-        item.id === id
-          ? { ...item, nomor_kk: formData.nomor_kk, nama_kepala_keluarga: formData.nama, synced: false }
+        (item.id === id || item.id_keluarga === id)
+          ? { 
+              ...item, 
+              no_kk: formData.nomor_kk, 
+              nama_kepala_keluarga: formData.nama, 
+              status_keberadaan: formData.status_keberadaan,
+              alamat: formData.alamat,
+              no_hp: formData.no_hp,
+              lat: formData.lat,
+              long: formData.long,
+              synced: false,
+              // Update atribut rekam jejak
+              last_modified_at: currentTime,
+              last_modified_by: currentUserId
+            }
           : item
       );
 
       const updatedPenduduk = existingPenduduk.map(item =>
-        (item.id_keluarga === id && item.hubungan_keluarga === 'KEPALA KELUARGA')
+        (item.id_keluarga === id_keluarga && item.hubungan_keluarga === 'KEPALA KELUARGA')
           ? { ...item, nik: formData.nik, nama: formData.nama, synced: false }
           : item
       );
@@ -85,19 +104,29 @@ export default function FormKeluarga() {
       showToast('Data berhasil diupdate ✏️');
 
     } else {
+      // 🔥 MODE CREATE (Insert ke dua tabel)
       const newKeluargaId = crypto.randomUUID();
       targetRedirectId = newKeluargaId;
 
       const newKeluarga = {
         id: newKeluargaId,
-        nomor_kk: formData.nomor_kk,
-        id_sls: defaultSls,
-        nama_kepala_keluarga: formData.nama, // Disimpan di lokal untuk mempermudah render list
-        synced: false
+        id_keluarga: newKeluargaId, // Simpan sebagai id_keluarga agar konsisten
+        no_kk: formData.nomor_kk,
+        nama_kepala_keluarga: formData.nama,
+        status_keberadaan: formData.status_keberadaan,
+        alamat: formData.alamat,
+        no_hp: formData.no_hp,
+        lat: formData.lat,
+        long: formData.long,
+        id_sls: defaultSls, 
+        synced: false,
+        // Tambahkan atribut rekam jejak
+        last_modified_at: currentTime,
+        last_modified_by: currentUserId
       };
 
       const newKepalaKeluarga = {
-        id: crypto.randomUUID(),
+        id_penduduk: crypto.randomUUID(),
         id_keluarga: newKeluargaId,
         nik: formData.nik,
         nama: formData.nama,
@@ -110,6 +139,7 @@ export default function FormKeluarga() {
       showToast('Data keluarga berhasil dibuat ✅');
     }
 
+    // Arahkan ke halaman Detail Keluarga
     setTimeout(() => {
       navigate(`/detail-keluarga?id=${targetRedirectId}`);
     }, 1600);
@@ -119,7 +149,7 @@ export default function FormKeluarga() {
     <div className="flex flex-col gap-4 max-w-lg mx-auto p-6 bg-white shadow-md rounded-xl mt-10">
       
       <h2 className="text-2xl font-bold text-gray-800 border-b pb-3 mb-2">
-        {id ? 'Edit Data Keluarga' : 'Tambah Keluarga Baru'}
+        {id_keluarga ? 'Edit Data Keluarga' : 'Tambah Keluarga Baru'}
       </h2>
 
       {toast.show && (
@@ -137,8 +167,8 @@ export default function FormKeluarga() {
             Nomor Kartu Keluarga (KK)
           </label>
           <input 
-            name="nomor_kk"
-            value={formData.nomor_kk}
+            name="no_kk"
+            value={formData.no_kk}
             onChange={handleChange}
             type="number" 
             required 
@@ -186,10 +216,10 @@ export default function FormKeluarga() {
         <button 
           type="submit" 
           className={`w-full font-bold text-white py-3 rounded-lg transition mt-4 ${
-            id ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-blue-600 hover:bg-blue-700'
+            id_keluarga ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-blue-600 hover:bg-blue-700'
           }`}
         >
-          {id ? 'Update Data' : 'Simpan & Lanjut ke Detail'}
+          {id_keluarga ? 'Update Data' : 'Simpan & Lanjut ke Detail'}
         </button>
       </form>
 

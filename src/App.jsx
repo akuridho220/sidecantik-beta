@@ -1,15 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import ListKeluarga from './pages/ListKeluarga';
-import FormKeluarga from './pages/FormKeluarga';
+import FormulirBlok1 from './pages/FormulirBlok1';
 import InstallButton from "./components/InstallButton";
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import DetailKeluarga from './pages/DetailKeluarga';
+import FormAnggotaKeluarga from './pages/FormAnggotaKeluarga';
 
 function App() {
   return (
     <Router>
-      <div className="w-full max-w-md min-h-screen bg-[#f4f4f3] shadow-xl p-6 relative">
+      <div className="w-full max-w-md min-h-screen bg-[#f4f4f3] shadow-xl p-2 relative">
         <Routes>
           <Route path="/login" element={<Login />} />
 
@@ -17,7 +19,9 @@ function App() {
           <Route element={<ProtectedRoute/>}>
             <Route path="/" element={<Home />} />
             <Route path="/list-keluarga" element={<ListKeluarga />} />
-            <Route path="/form-keluarga" element={<FormKeluarga />} />
+            <Route path="/form/blok1" element={<FormulirBlok1 />} />
+            <Route path="/detail-keluarga" element={<DetailKeluarga />} />
+            <Route path="/form-anggota-keluarga" element={<FormAnggotaKeluarga />} />
           </Route>
         </Routes>
       </div>
