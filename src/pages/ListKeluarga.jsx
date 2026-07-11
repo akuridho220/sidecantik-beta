@@ -147,14 +147,14 @@ export default function ListKeluarga() {
                     </div>
 
                     {/* Area Kanan (Badge Status atau Ikon Panah) */}
-                    <div className="flex items-center justify-end pr-2 gap-2">
+                    {/* <div className="flex items-center justify-end pr-2 gap-2">
                       {!isExpanded && (
                         <span className={`text-xs px-2 py-1 rounded-full font-semibold ${statusBadge}`}>
                           {item.status || 'open'}
                         </span>
                       )}
                       {isExpanded ? <ChevronUp size={20} className="text-white" /> : <ChevronDown size={20} className="text-gray-400" />}
-                    </div>
+                    </div> */}
                   </div>
 
                   {/* ACCORDION ROW (Panel Detail Tersembunyi) */}
@@ -173,13 +173,24 @@ export default function ListKeluarga() {
                             <p className="font-bold text-gray-800 text-base">{item.nama_kepala_keluarga}</p>
                           </div>
 
+                          <div className="flex flex-col gap-1 text-sm">
+                            <p className="text-gray-500 font-medium">Status:</p>
+                            <p className="font-bold text-gray-800 text-base">{item.status.toUpperCase()}</p>
+                          </div>
+
                           {/* Tombol Arahkan ke Halaman Detail */}
                           <div className="mt-3">
-                            <Link 
+                            {/* <Link 
                               to={`/detail-keluarga?id=${item.id_keluarga || item.id}`}
                               className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"
                             >
-                              Buka Detail Keluarga
+                              Detail Keluarga
+                            </Link> */}
+                            <Link 
+                              to={`/form/blok1`}
+                              className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"
+                            >
+                              Open
                             </Link>
                           </div>
 
