@@ -1,7 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Users, ArrowLeft, ArrowRight, AlertTriangle, MapPin, Crosshair } from 'lucide-react';
-import Select from 'react-select';
+import { Users, ArrowLeft, ArrowRight, AlertTriangle, MapPin } from 'lucide-react';
+import Select from 'react-select'; 
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
 
 const opsiStatusKeberadaan = [
   { value: 'Ditemukan', label: '1. Ditemukan' },
@@ -47,6 +61,13 @@ const customSelectStyles = {
   })
 };
 
+function MapUpdater({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, map.getZoom());
+  }, [center, map]);
+  return null;
+}
 
 export default function FormBlok2() {
   const navigate = useNavigate();
@@ -54,7 +75,10 @@ export default function FormBlok2() {
   const idKeluarga = searchParams.get('id_keluarga');
 
   const [showExitModal, setShowExitModal] = useState(false);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+
+  const defaultPosition = [-0.789275, 113.921327];
+  const [mapPosition, setMapPosition] = useState(defaultPosition);
   
   const [formData, setFormData] = useState({
     nomor_kk: '',
@@ -68,6 +92,8 @@ export default function FormBlok2() {
     nomor_hp: ''
   });
 
+  const markerRef = useRef(null);
+
   useEffect(() => {
     if (idKeluarga) {
       const dataKeluargaLokal = JSON.parse(localStorage.getItem('keluarga')) || [];
@@ -78,11 +104,23 @@ export default function FormBlok2() {
           ...prev,
           nomor_kk: keluargaSaatIni.no_kk || '',
           nama_kepala_keluarga: keluargaSaatIni.nama_kepala_keluarga || '',
-          jumlah_anggota: keluargaSaatIni.jumlah_anggota
+          jumlah_anggota: keluargaSaatIni.jumlah_anggota,
+          latitude: keluargaSaatIni.latitude || '',
+          longitude: keluargaSaatIni.longitude || ''
         }));
+
+        if (keluargaSaatIni.latitude && keluargaSaatIni.longitude) {
+          setMapPosition([parseFloat(keluargaSaatIni.latitude), parseFloat(keluargaSaatIni.longitude)]);
+        }
       }
     }
   }, [idKeluarga]);
+
+  useEffect(() => {
+    if (!formData.latitude && !formData.longitude) {
+      handleGetLocation();
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -114,27 +152,49 @@ export default function FormBlok2() {
   };
 
   const handleGetLocation = () => {
-    setIsLoadingLocation(true);
+    setIsLocating(true);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          setMapPosition([lat, lng]);
           setFormData(prev => ({
             ...prev,
-            latitude: position.coords.latitude.toString(),
-            longitude: position.coords.longitude.toString()
+            latitude: lat.toString(),
+            longitude: lng.toString()
           }));
-          setIsLoadingLocation(false);
+          setIsLocating(false);
         },
-        (error) => {
-          alert("Gagal mengambil lokasi. Pastikan GPS aktif dan izin diberikan.");
-          setIsLoadingLocation(false);
-        }
+        () => {
+          setIsLocating(false);
+          // Gagal mengambil lokasi, biarkan di default
+        },
+        { enableHighAccuracy: true }
       );
     } else {
-      alert("Browser/Perangkat Anda tidak mendukung fitur Geolocation.");
-      setIsLoadingLocation(false);
+      setIsLocating(false);
     }
   };
+
+  // Drag pin maps
+  const markerEventHandlers = useMemo(
+    () => ({
+      dragend() {
+        const marker = markerRef.current;
+        if (marker != null) {
+          const position = marker.getLatLng();
+          setFormData(prev => ({
+            ...prev,
+            latitude: position.lat.toString(),
+            longitude: position.lng.toString()
+          }));
+        }
+      },
+    }),
+    []
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -287,18 +347,41 @@ export default function FormBlok2() {
 
               {/* 6. Lokasi (Mengikuti penomoran ganda pada gambar asli) */}
               <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-sm font-semibold text-slate-700">6. Lokasi</label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-semibold text-slate-700">6. Lokasi (Geser Pin untuk koreksi)</label>
                   <button
                     type="button"
                     onClick={handleGetLocation}
-                    disabled={isLoadingLocation}
-                    className="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1 transition"
+                    disabled={isLocating || isSkipLanjut}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1 transition ${
+                      isSkipLanjut 
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
+                        : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'
+                    }`}
                   >
-                    <Crosshair className="w-3.5 h-3.5" />
-                    <span>{isLoadingLocation ? 'Mencari...' : 'Ambil GPS'}</span>
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>{isLocating ? 'Mencari...' : 'Titik Saya'}</span>
                   </button>
                 </div>
+                
+                {/* Area Peta */}
+                <div className="w-full h-64 bg-slate-200 rounded-xl overflow-hidden border border-slate-200 relative z-0 mb-3">
+                  <MapContainer center={mapPosition} zoom={16} scrollWheelZoom={true} className="h-full w-full">
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <MapUpdater center={mapPosition} />
+                    <Marker
+                      draggable={!isSkipLanjut}
+                      eventHandlers={markerEventHandlers}
+                      position={formData.latitude && formData.longitude ? [parseFloat(formData.latitude), parseFloat(formData.longitude)] : mapPosition}
+                      ref={markerRef}
+                    >
+                    </Marker>
+                  </MapContainer>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     type="text"
@@ -306,7 +389,7 @@ export default function FormBlok2() {
                     readOnly
                     placeholder="Latitude"
                     value={formData.latitude}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none cursor-not-allowed"
                   />
                   <input
                     type="text"
@@ -314,7 +397,7 @@ export default function FormBlok2() {
                     readOnly
                     placeholder="Longitude"
                     value={formData.longitude}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none cursor-not-allowed"
                   />
                 </div>
               </div>
