@@ -118,7 +118,7 @@ export default function ListKeluarga() {
                 statusBg = "bg-blue-50/60";
                 statusBadge = "bg-blue-100 text-blue-600";
               } else if (item.status === 'draft') {
-                statusBg = "bg-orange-50/60";
+                statusBg = "bg-orange-100/60";
                 statusBadge = "bg-orange-100 text-orange-600";
               }
 
@@ -147,14 +147,14 @@ export default function ListKeluarga() {
                     </div>
 
                     {/* Area Kanan (Badge Status atau Ikon Panah) */}
-                    {/* <div className="flex items-center justify-end pr-2 gap-2">
-                      {!isExpanded && (
+                    <div className="flex items-center justify-end pr-2 gap-2">
+                      {/* {!isExpanded && (
                         <span className={`text-xs px-2 py-1 rounded-full font-semibold ${statusBadge}`}>
                           {item.status || 'open'}
                         </span>
-                      )}
+                      )} */}
                       {isExpanded ? <ChevronUp size={20} className="text-white" /> : <ChevronDown size={20} className="text-gray-400" />}
-                    </div> */}
+                    </div>
                   </div>
 
                   {/* ACCORDION ROW (Panel Detail Tersembunyi) */}

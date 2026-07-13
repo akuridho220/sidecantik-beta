@@ -454,11 +454,11 @@ export default function FormBlok2() {
         <div className="max-w-lg mx-auto flex gap-3">
           <button
             type="button"
-            onClick={handleBackClick}
+            onClick={() => navigate(`/form/blok1?id_keluarga=${idKeluarga}`)}
             className="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3.5 rounded-xl transition flex items-center justify-center space-x-2 border border-slate-200"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="inline">Kembali</span>
+            <span className="inline">Blok I</span>
           </button>
           
           <button

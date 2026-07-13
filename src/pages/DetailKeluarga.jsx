@@ -4,12 +4,14 @@ import {
   Users, 
   UserPlus, 
   ArrowLeft, 
+  ArrowRight,
   CheckCircle, 
   Trash2, 
   UserCircle,
   ChevronDown,
   ChevronUp,
-  Edit3
+  Edit3,
+  AlertTriangle
 } from 'lucide-react';
 
 // Helper untuk format tanggal yang rapi
@@ -55,6 +57,17 @@ export default function DetailKeluarga() {
       setAnggotaKeluarga(anggotaTerkait);
     }
   }, [idKeluarga]);
+
+  const cekKelengkapanData = (anggota) => {
+    const fieldWajib = [
+      'no_urut_anggota', 'nama', 'nik', 'status_hubungan_keluarga', 'status_penduduk', 
+      'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 
+      'agama', 'status_perkawinan', 'pendidikan_tertinggi', 'pekerjaan'
+    ];
+
+    // Mengembalikan 'true' HANYA JIKA semua field di atas ada nilainya dan tidak kosong
+    return fieldWajib.every(field => anggota[field] && anggota[field].toString().trim() !== '');
+  };
 
 
   if (!keluargaInfo) return (
@@ -129,13 +142,25 @@ export default function DetailKeluarga() {
                         {anggota.nama || anggota.nama_lengkap}
                       </h3>
                       <p className={`text-xs font-medium ${isExpanded ? 'text-teal-50' : 'text-slate-500'}`}>
-                        {anggota.hubungan_keluarga}
+                        {anggota.status_hubungan_keluarga}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="pr-2">
-                    {isExpanded ? <ChevronUp size={20} className="text-white" /> : <ChevronDown size={20} className="text-slate-400" />}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {cekKelengkapanData(anggota) ? (
+                      <span className={`flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${isExpanded ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'}`}>
+                        <CheckCircle size={12} /> Lengkap
+                      </span>
+                    ) : (
+                      <span className={`flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${isExpanded ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'}`}>
+                        <AlertTriangle size={12} /> Belum Lengkap
+                      </span>
+                    )}
+                    
+                    <div>
+                      {isExpanded ? <ChevronUp size={20} className="text-white" /> : <ChevronDown size={20} className="text-slate-400" />}
+                    </div>
                   </div>
                 </div>
 
@@ -181,12 +206,21 @@ export default function DetailKeluarga() {
 
                     {/* Tombol Aksi di dalam Accordion */}
                     <div className="flex gap-3 border-t border-slate-200 pt-4">
-                      <Link 
+                      {cekKelengkapanData(anggota) ? (
+                        <Link 
+                        to={`/form/blok3?id_keluarga=${idKeluarga}&id_anggota_keluarga=${anggota.id_anggota_keluarga}`}
+                        className="flex-1 flex items-center justify-center gap-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
+                        >
+                          <Edit3 size={16} /> Edit Data
+                        </Link>
+                      ) : (
+                        <Link 
                         to={`/form/blok3?id_keluarga=${idKeluarga}&id_anggota_keluarga=${anggota.id_anggota_keluarga}`}
                         className="flex-1 flex items-center justify-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
-                      >
-                        <Edit3 size={16} /> Lengkapi Data
-                      </Link>
+                        >
+                          <Edit3 size={16} /> Lengkapi Data
+                        </Link>
+                      )}
                       
                       {/* Proteksi: Kepala Keluarga tidak boleh dihapus dari sini */}
                       {/* {anggota.hubungan_keluarga !== 'KEPALA KELUARGA' && (
@@ -228,11 +262,12 @@ export default function DetailKeluarga() {
           {/* Tombol Kanan: Selesai (Kembali ke List Keluarga) */}
           <button
             type="button"
-            onClick={() => navigate('/list-keluarga')}
+            onClick={() => navigate(`/form/blok4?id_keluarga=${idKeluarga}`)}
             className="w-1/2 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2"
           >
-            <CheckCircle className="w-5 h-5" />
-            <span>Blok IV. Catatan</span>
+            {/* <CheckCircle className="w-5 h-5" /> */}
+            <span>Simpan & Lanjut</span>
+            <ArrowRight className="w-5 h-5" />
           </button>
         </div>
       </div>

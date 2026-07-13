@@ -5,76 +5,76 @@ import Select from 'react-select';
 
 // --- OPSI DROPDOWN ---
 const opsiHubungan = [
-  { value: '1', label: '1. Kepala Keluarga' },
-  { value: '2', label: '2. Istri/Suami' },
-  { value: '3', label: '3. Anak' },
-  { value: '4', label: '4. Menantu' },
-  { value: '5', label: '5. Cucu' },
-  { value: '6', label: '6. Orang tua' },
-  { value: '7', label: '7. Mertua' },
-  { value: '8', label: '8. Famili lain' },
-  { value: '9', label: '9. Pembantu' },
-  { value: '10', label: '10. Lainnya (tuliskan)' }
+  { value: 'Kepala Keluarga', label: '1. Kepala Keluarga' },
+  { value: 'Istri/Suami', label: '2. Istri/Suami' },
+  { value: 'Anak', label: '3. Anak' },
+  { value: 'Menantu', label: '4. Menantu' },
+  { value: 'Cucu', label: '5. Cucu' },
+  { value: 'Orang Tua', label: '6. Orang tua' },
+  { value: 'Mertua', label: '7. Mertua' },
+  { value: 'Famili Lain', label: '8. Famili lain' },
+  { value: 'Pembantu', label: '9. Pembantu' },
+  { value: 'Lainnya', label: '10. Lainnya (tuliskan)' }
 ];
 
 const opsiStatusPenduduk = [
-  { value: '1', label: '1. Hidup' },
-  { value: '2', label: '2. Mati' },
-  { value: '3', label: '3. Tinggal diluar SLS' },
-  { value: '4', label: '4. Tidak ditemukan' }
+  { value: 'Hidup', label: '1. Hidup' },
+  { value: 'Mati', label: '2. Mati' },
+  { value: 'Tinggal Diluar SLS', label: '3. Tinggal diluar SLS' },
+  { value: 'Tidak Ditemukan', label: '4. Tidak ditemukan' }
 ];
 
 const opsiJenisKelamin = [
-  { value: '1', label: '1. Laki-laki' },
-  { value: '2', label: '2. Perempuan' }
+  { value: 'Laki-laki', label: '1. Laki-laki' },
+  { value: 'Perempuan', label: '2. Perempuan' }
 ];
 
 const opsiAgama = [
-  { value: '1', label: '1. Islam' },
-  { value: '2', label: '2. Kristen' },
-  { value: '3', label: '3. Katolik' },
-  { value: '4', label: '4. Hindu' },
-  { value: '5', label: '5. Budha' },
-  { value: '6', label: '6. Konghucu' },
-  { value: '7', label: '7. Kepercayaan lain ...' }
+  { value: 'Islam', label: '1. Islam' },
+  { value: 'Kristen', label: '2. Kristen' },
+  { value: 'Katolik', label: '3. Katolik' },
+  { value: 'Hindu', label: '4. Hindu' },
+  { value: 'Budha', label: '5. Budha' },
+  { value: 'Konghucu', label: '6. Konghucu' },
+  { value: 'Kepercayaan Lain', label: '7. Kepercayaan lain ...' }
 ];
 
 const opsiPerkawinan = [
-  { value: '1', label: '1. Belum Kawin' },
-  { value: '2', label: '2. Kawin' },
-  { value: '3', label: '3. Cerai Hidup' },
-  { value: '4', label: '4. Cerai Mati' }
+  { value: 'Belum Kawin', label: '1. Belum Kawin' },
+  { value: 'Kawin', label: '2. Kawin' },
+  { value: 'Cerai Hidup', label: '3. Cerai Hidup' },
+  { value: 'Cerai Mati', label: '4. Cerai Mati' }
 ];
 
 const opsiPendidikan = [
-  { value: '1', label: '1. Tidak/Belum Sekolah' },
-  { value: '2', label: '2. Belum Tamat SD/Sederajat' },
-  { value: '3', label: '3. Tamat SD/Sederajat' },
-  { value: '4', label: '4. SMP/Sederajat' },
-  { value: '5', label: '5. SMA/Sederajat' },
-  { value: '6', label: '6. Diploma I/II' },
-  { value: '7', label: '7. Akademi/Diploma III' },
-  { value: '8', label: '8. Diploma IV/Strata I (S1)' },
-  { value: '9', label: '9. Strata II (S2)' },
-  { value: '10', label: '10. Strata III (S3)' }
+  { value: 'Tidak/Belum Sekolah', label: '1. Tidak/Belum Sekolah' },
+  { value: 'Belum Tamat SD/Sederajat', label: '2. Belum Tamat SD/Sederajat' },
+  { value: 'Tamat SD/Sederajat', label: '3. Tamat SD/Sederajat' },
+  { value: 'SMP/Sederajat', label: '4. SMP/Sederajat' },
+  { value: 'SMA/Sederajat', label: '5. SMA/Sederajat' },
+  { value: 'Diploma I/II', label: '6. Diploma I/II' },
+  { value: 'Akademi/Diploma III', label: '7. Akademi/Diploma III' },
+  { value: 'Diploma IV/Strata I (S1)', label: '8. Diploma IV/Strata I (S1)' },
+  { value: 'Strata II (S2)', label: '9. Strata II (S2)' },
+  { value: 'Strata III (S3)', label: '10. Strata III (S3)' }
 ];
 
 const opsiPekerjaan = [
-  { value: '1', label: '1. Belum/tidak bekerja' },
-  { value: '2', label: '2. Mengurus rumah tangga' },
-  { value: '3', label: '3. Pelajar/mahasiswa' },
-  { value: '4', label: '4. Pensiunan' },
-  { value: '5', label: '5. ASN (Aparatur Sipil Negara)' },
-  { value: '6', label: '6. Tentara Nasional Indonesia (TNI)' },
-  { value: '7', label: '7. Kepolisian RI (POLRI)' },
-  { value: '8', label: '8. Wiraswasta/Pedagang' },
-  { value: '9', label: '9. Petani/pekebun' },
-  { value: '10', label: '10. Nelayan/perikanan' },
-  { value: '11', label: '11. Karyawan swasta' },
-  { value: '12', label: '12. Karyawan honorer' },
-  { value: '13', label: '13. Buruh harian lepas' },
-  { value: '14', label: '14. Tenaga Kerja Indonesia (TKI)' },
-  { value: '15', label: '15. Lainnya' }
+  { value: 'Belum/Tidak Bekerja', label: '1. Belum/tidak bekerja' },
+  { value: 'Mengurus Rumah Tangga', label: '2. Mengurus rumah tangga' },
+  { value: 'Pelajar/Mahasiswa', label: '3. Pelajar/mahasiswa' },
+  { value: 'Pensiunan', label: '4. Pensiunan' },
+  { value: 'ASN (Aparatur Sipil Negara)', label: '5. ASN (Aparatur Sipil Negara)' },
+  { value: 'Tentara Nasional Indonesia (TNI)', label: '6. Tentara Nasional Indonesia (TNI)' },
+  { value: 'Kepolisian RI (POLRI)', label: '7. Kepolisian RI (POLRI)' },
+  { value: 'Wiraswasta/Pedagang', label: '8. Wiraswasta/Pedagang' },
+  { value: 'Petani/Pekebun', label: '9. Petani/pekebun' },
+  { value: 'Nelayan/Perikanan', label: '10. Nelayan/perikanan' },
+  { value: 'Karyawan Swasta', label: '11. Karyawan swasta' },
+  { value: 'Karyawan Honorer', label: '12. Karyawan honorer' },
+  { value: 'Buruh Harian Lepas', label: '13. Buruh harian lepas' },
+  { value: 'Tenaga Kerja Indonesia (TKI)', label: '14. Tenaga Kerja Indonesia (TKI)' },
+  { value: 'Lainnya', label: '15. Lainnya' }
 ];
 
 const customSelectStyles = {
@@ -142,11 +142,11 @@ export default function FormAnggotaKeluarga() {
   const [originalData, setOriginalData] = useState(null); // Menyimpan data asli agar atribut lain tidak hilang
   
   const [formData, setFormData] = useState({
-    nomor_urut: '',
+    no_urut_anggota: '',
     nama: '',
     nik: '',
-    hubungan_keluarga: '',
-    hubungan_lainnya: '',
+    status_hubungan_keluarga: '',
+    detail_hubungan_keluarga_lainnya: '',
     status_penduduk: '',
     tempat_lahir: '',
     tanggal_lahir: '',
@@ -154,7 +154,7 @@ export default function FormAnggotaKeluarga() {
     agama: '',
     agama_lainnya: '',
     status_perkawinan: '',
-    pendidikan_kk: '',
+    pendidikan_tertinggi: '',
     pekerjaan: ''
   });
 
@@ -180,11 +180,11 @@ export default function FormAnggotaKeluarga() {
         }
 
         setFormData({
-          nomor_urut: anggotaTarget.nomor_urut || '',
+          no_urut_anggota: anggotaTarget.no_urut_anggota || '',
           nama: anggotaTarget.nama || anggotaTarget.nama_lengkap || '',
           nik: anggotaTarget.nik || '',
-          hubungan_keluarga: parseDropdownValue(anggotaTarget.status_hubungan_keluarga, opsiHubungan),
-          hubungan_lainnya: anggotaTarget.hubungan_lainnya || '',
+          status_hubungan_keluarga: parseDropdownValue(anggotaTarget.status_hubungan_keluarga, opsiHubungan),
+          detail_hubungan_keluarga_lainnya: anggotaTarget.detail_hubungan_keluarga_lainnya || '',
           status_penduduk: parseDropdownValue(anggotaTarget.status_penduduk || 'Hidup', opsiStatusPenduduk),
           tempat_lahir: anggotaTarget.tempat_lahir || '',
           tanggal_lahir: tglLahirFormatted,
@@ -192,7 +192,7 @@ export default function FormAnggotaKeluarga() {
           agama: parseDropdownValue(anggotaTarget.agama, opsiAgama),
           agama_lainnya: anggotaTarget.agama_lainnya || '',
           status_perkawinan: parseDropdownValue(anggotaTarget.status_perkawinan, opsiPerkawinan),
-          pendidikan_kk: parseDropdownValue(anggotaTarget.pendidikan_tertinggi, opsiPendidikan),
+          pendidikan_tertinggi: parseDropdownValue(anggotaTarget.pendidikan_tertinggi, opsiPendidikan),
           pekerjaan: parseDropdownValue(anggotaTarget.pekerjaan, opsiPekerjaan)
         });
       }
@@ -218,7 +218,7 @@ export default function FormAnggotaKeluarga() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.hubungan_keluarga) return alert("Pilih Hubungan dengan Kepala Keluarga!");
+    if (!formData.status_hubungan_keluarga) return alert("Pilih Hubungan dengan Kepala Keluarga!");
     if (!formData.status_penduduk) return alert("Pilih Status Penduduk!");
     if (!formData.jenis_kelamin) return alert("Pilih Jenis Kelamin!");
 
@@ -231,17 +231,18 @@ export default function FormAnggotaKeluarga() {
       ...formData,
       id_keluarga: idKeluarga,
       id_penduduk: idPenduduk || `PND-${Date.now()}`,
+      status_dokumen_blok3: 'draft',
       synced: false // Cascade Unsync
     };
 
     if (idPenduduk) {
-      const index = dataPendudukLokal.findIndex(p => p.id_penduduk === idPenduduk);
+      const index = dataPendudukLokal.findIndex(p => p.id_anggota_keluarga === idPenduduk);
       if (index !== -1) dataPendudukLokal[index] = dataDisimpan;
     } else {
       dataPendudukLokal.push(dataDisimpan);
     }
     
-    localStorage.setItem('draft_blok3_anggota_keluarga', JSON.stringify(dataPendudukLokal));
+    localStorage.setItem('data_penduduk', JSON.stringify(dataPendudukLokal));
 
     // Cascade Unsync Keluarga
     let dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga'));
@@ -296,10 +297,10 @@ export default function FormAnggotaKeluarga() {
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">1. No. Urut</label>
                 <input
                   type="number"
-                  name="nomor_urut"
+                  name="no_urut_anggota"
                   min="1"
                   required
-                  value={formData.nomor_urut}
+                  value={formData.no_urut_anggota}
                   onChange={handleChange}
                   className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
                   placeholder="Contoh: 1"
@@ -338,17 +339,17 @@ export default function FormAnggotaKeluarga() {
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">4. Status Hubungan dengan Kepala Keluarga</label>
               <Select
                 options={opsiHubungan}
-                value={getSelectObj(opsiHubungan, formData.hubungan_keluarga)}
-                onChange={(option) => handleSelectChange('hubungan_keluarga', option)}
+                value={getSelectObj(opsiHubungan, formData.status_hubungan_keluarga)}
+                onChange={(option) => handleSelectChange('status_hubungan_keluarga', option)}
                 styles={customSelectStyles}
                 placeholder="-- Pilih Hubungan --"
               />
-              {formData.hubungan_keluarga === '10' && (
+              {formData.status_hubungan_keluarga === 'Lainnya' && (
                 <input
                   type="text"
-                  name="hubungan_lainnya"
+                  name="detail_hubungan_keluarga_lainnya"
                   required
-                  value={formData.hubungan_lainnya}
+                  value={formData.detail_hubungan_keluarga_lainnya}
                   onChange={handleChange}
                   className="w-full bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
                   placeholder="Tuliskan spesifik hubungan lainnya..."
@@ -448,7 +449,7 @@ export default function FormAnggotaKeluarga() {
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">10. Pendidikan Tertinggi</label>
               <Select
                 options={opsiPendidikan}
-                value={getSelectObj(opsiPendidikan, formData.pendidikan_kk)}
+                value={getSelectObj(opsiPendidikan, formData.pendidikan_tertinggi)}
                 onChange={(option) => handleSelectChange('pendidikan_kk', option)}
                 styles={customSelectStyles}
                 placeholder="-- Pilih Pendidikan --"
