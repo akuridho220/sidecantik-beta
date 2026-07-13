@@ -120,6 +120,9 @@ export default function ListKeluarga() {
               } else if (item.status === 'draft') {
                 statusBg = "bg-orange-100/60";
                 statusBadge = "bg-orange-100 text-orange-600";
+              } else if (item.status === 'selesai'){
+                statusBg = "bg-emerald-100/60";
+                statusBadge = "bg-emerald-100 text-emerald-600";
               }
 
               return (

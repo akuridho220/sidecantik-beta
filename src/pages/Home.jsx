@@ -120,6 +120,7 @@ export default function Home() {
       setIsFabOpen(false); // Tutup FAB setelah ditekan
     }
   };
+  
 
   if (!userData) return null;
 
