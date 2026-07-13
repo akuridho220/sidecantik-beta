@@ -38,7 +38,7 @@ export default function Home() {
 
   useEffect(() => {
     // Ambil data user dari localStorage [cite: 405]
-    const storedUser = JSON.parse(localStorage.getItem('userData'));
+    const storedUser = JSON.parse(localStorage.getItem('auth_user'));
     if (!storedUser) {
       navigate('/login');
       return;
@@ -48,8 +48,8 @@ export default function Home() {
   }, [navigate]);
 
   const kalkulasiStatistik = () => {
-    const dataKeluarga = JSON.parse(localStorage.getItem('keluarga')) || [];
-    const dataPenduduk = JSON.parse(localStorage.getItem('penduduk')) || [];
+    const dataKeluarga = JSON.parse(localStorage.getItem('data_keluarga')) || [];
+    const dataPenduduk = JSON.parse(localStorage.getItem('data_penduduk')) || [];
 
     const unsyncedKeluarga = dataKeluarga.filter(k => !k.synced).length;
     const unsyncedPenduduk = dataPenduduk.filter(p => !p.synced).length;
@@ -62,7 +62,7 @@ export default function Home() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userData');
+    localStorage.removeItem('auth_user');
     navigate('/login');
   };
 
@@ -106,8 +106,8 @@ export default function Home() {
       // 3. Simpan data yang telah ditarik secara massal ke Local Storage
       // Catatan: Ini akan menimpa data lokal. Pastikan data lokal yang unsynced
       // sudah di-push sebelumnya (atau jalankan fungsi upload jika diperlukan).
-      localStorage.setItem('keluarga', JSON.stringify(fetchedKeluarga));
-      localStorage.setItem('penduduk', JSON.stringify(fetchedPenduduk));
+      localStorage.setItem('data_keluarga', JSON.stringify(fetchedKeluarga));
+      localStorage.setItem('data_penduduk', JSON.stringify(fetchedPenduduk));
 
       kalkulasiStatistik(); // Update angka dashboard
       showToast('Sinkronisasi penuh berhasil! 🚀', 'success');

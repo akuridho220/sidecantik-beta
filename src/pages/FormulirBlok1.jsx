@@ -16,7 +16,7 @@ export default function FormIdentitasWilayah() {
 
   useEffect(() => {
     if (idKeluarga) {
-      const dataKeluargaLokal = JSON.parse(localStorage.getItem('keluarga')) || [];
+      const dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
       
       const keluargaSaatIni = dataKeluargaLokal.find(k => k.id_keluarga === idKeluarga);
 
@@ -41,7 +41,7 @@ export default function FormIdentitasWilayah() {
       id_keluarga: idKeluarga
     };
     
-    localStorage.setItem('identitas_wilayah', JSON.stringify(dataDisimpan));
+    localStorage.setItem('draft_blok1_identitas-wilayah', JSON.stringify(dataDisimpan));
     
     navigate(`/form/blok2?id_keluarga=${idKeluarga}`);
   };

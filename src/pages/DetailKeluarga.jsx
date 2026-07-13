@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { 
+  Users, 
   UserPlus, 
   ArrowLeft, 
-  RefreshCw, 
-  User, 
-  ShieldAlert, 
-  ChevronDown, 
+  CheckCircle, 
+  Trash2, 
+  UserCircle,
+  ChevronDown,
   ChevronUp,
-  Edit3 // <-- Mengimpor kembali ikon Edit3
+  Edit3
 } from 'lucide-react';
 
-// Fungsi Helper untuk memformat tanggal (dd/mm/yyyy)
+// Helper untuk format tanggal yang rapi
 const formatTanggal = (tanggal) => {
   if (!tanggal) return '-';
   const date = new Date(tanggal);
-  if (isNaN(date)) return tanggal; // Jaga-jaga jika format tanggal tidak valid
+  if (isNaN(date)) return tanggal;
   
   const d = String(date.getDate()).padStart(2, '0');
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -25,301 +26,235 @@ const formatTanggal = (tanggal) => {
 };
 
 export default function DetailKeluarga() {
-  const [searchParams] = useSearchParams();
-  const idKeluarga = searchParams.get('id');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const idKeluarga = searchParams.get('id_keluarga');
 
-  const [keluarga, setKeluarga] = useState(null);
+  const [keluargaInfo, setKeluargaInfo] = useState(null);
   const [anggotaKeluarga, setAnggotaKeluarga] = useState([]);
-  const [isSyncing, setIsSyncing] = useState(false);
   
+  // State untuk melacak baris mana yang accordion-nya sedang terbuka
   const [expandedRow, setExpandedRow] = useState(null);
-  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
-
-  const showToast = (message, type = 'success') => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2000);
-  };
 
   useEffect(() => {
-    if (!idKeluarga) {
-      alert("ID Keluarga tidak ditemukan!");
-      navigate('/list-keluarga');
-      return;
-    }
-    loadData();
-  }, [idKeluarga, navigate]);
+    if (idKeluarga) {
+      // 1. Ambil Identitas Keluarga
+      const dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
+      const keluargaSaatIni = dataKeluargaLokal.find(k => k.id_keluarga === idKeluarga);
+      setKeluargaInfo(keluargaSaatIni);
 
-  const loadData = () => {
-    const dataKeluarga = JSON.parse(localStorage.getItem('keluarga')) || [];
-    const foundKeluarga = dataKeluarga.find(k => k.id_keluarga === idKeluarga || k.id === idKeluarga);
-    setKeluarga(foundKeluarga);
-
-    const dataPenduduk = JSON.parse(localStorage.getItem('penduduk')) || [];
-    const foundAnggota = dataPenduduk.filter(p => p.id_keluarga === idKeluarga);
-    
-    foundAnggota.sort((a, b) => {
-      if (a.hubungan_keluarga === 'KEPALA KELUARGA') return -1;
-      if (b.hubungan_keluarga === 'KEPALA KELUARGA') return 1;
-      return 0;
-    });
-
-    setAnggotaKeluarga(foundAnggota);
-  };
-
-  const handleSyncAnggota = async () => {
-    setIsSyncing(true);
-    try {
-      const allLocalPenduduk = JSON.parse(localStorage.getItem('penduduk')) || [];
-      const unsyncedAnggota = allLocalPenduduk.filter(p => p.id_keluarga === idKeluarga && !p.synced);
-
-      if (unsyncedAnggota.length > 0) {
-        const response = await fetch('http://localhost:3001/api/penduduk/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(unsyncedAnggota)
-        });
-        if (!response.ok) throw new Error('Gagal mengirim data anggota ke server');
-      }
-
-      const fetchResponse = await fetch(`http://localhost:3001/api/penduduk/keluarga/${idKeluarga}`);
-      if (!fetchResponse.ok) throw new Error('Gagal memuat data dari server');
-      const serverData = await fetchResponse.json();
-
-      const pPendudukKeluargaLain = allLocalPenduduk.filter(p => p.id_keluarga !== idKeluarga);
-      const serverDataSynced = serverData.map(s => ({ ...s, synced: true }));
+      // 2. Ambil Daftar Anggota Keluarga
+      const dataPendudukLokal = JSON.parse(localStorage.getItem('data_penduduk')) || [];
+      const anggotaTerkait = dataPendudukLokal.filter(p => p.id_keluarga === idKeluarga);
       
-      const mergedPenduduk = [...pPendudukKeluargaLain, ...serverDataSynced];
+      // 3. Urutkan agar KEPALA KELUARGA selalu berada di urutan No. 1
+      anggotaTerkait.sort((a, b) => {
+        if (a.hubungan_keluarga === 'KEPALA KELUARGA') return -1;
+        if (b.hubungan_keluarga === 'KEPALA KELUARGA') return 1;
+        return 0;
+      });
 
-      localStorage.setItem('penduduk', JSON.stringify(mergedPenduduk));
-      showToast('Sync data anggota berhasil! 🚀');
-      loadData(); 
-    } catch (error) {
-      console.error(error);
-      showToast('Sync gagal ❌. Periksa koneksi ke server.', 'error');
-    } finally {
-      setIsSyncing(false);
+      setAnggotaKeluarga(anggotaTerkait);
+    }
+  }, [idKeluarga]);
+
+  // Fungsi hapus anggota + logika Unsync Berantai
+  const handleDeleteAnggota = (idPenduduk) => {
+    if(window.confirm('Yakin ingin menghapus anggota keluarga ini?')) {
+      // Hapus dari data penduduk
+      const dataPendudukLokal = JSON.parse(localStorage.getItem('penduduk')) || [];
+      const updatedPenduduk = dataPendudukLokal.filter(p => p.id_penduduk !== idPenduduk);
+      localStorage.setItem('penduduk', JSON.stringify(updatedPenduduk));
+      
+      // Cascade Unsync: Ubah status keluarga menjadi draft/unsynced karena datanya berubah
+      const dataKeluargaLokal = JSON.parse(localStorage.getItem('keluarga')) || [];
+      const updatedKeluarga = dataKeluargaLokal.map(k => 
+        k.id_keluarga === idKeluarga ? { ...k, synced: false, status: 'draft' } : k
+      );
+      localStorage.setItem('keluarga', JSON.stringify(updatedKeluarga));
+
+      // Perbarui tampilan tabel anggota saat ini
+      setAnggotaKeluarga(updatedPenduduk.filter(p => p.id_keluarga === idKeluarga));
     }
   };
 
-  if (!keluarga) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center gap-3 text-teal-600">
-          <RefreshCw className="animate-spin" size={32} />
-          <p className="font-medium">Memuat data keluarga...</p>
-        </div>
-      </div>
-    );
-  }
+  if (!keluargaInfo) return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8 text-slate-500 font-medium">
+      Memuat data keluarga...
+    </div>
+  );
 
   return (
-    <div className="relative min-h-screen bg-slate-50 p-4 md:p-8 max-w-5xl mx-auto flex flex-col gap-6 font-sans">
-      
-      {toast.show && (
-        <div className={`fixed top-5 right-5 px-4 py-3 rounded-md text-white z-50 transition-opacity shadow-lg
-          ${toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
-          {toast.message}
-        </div>
-      )}
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden flex flex-col">
+      {/* Background Blobs (Tema Modern) */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+      <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
 
-      {/* Header Halaman & Navigasi */}
-      <div className="flex flex-col gap-3">
-        <Link 
-          to="/list-keluarga" 
-          className="flex items-center gap-2 text-gray-500 hover:text-teal-600 transition w-fit"
+      {/* Konten Utama dengan pb-28 agar tidak tertutup footer */}
+      <div className="flex-1 w-full max-w-xl mx-auto p-4 md:p-8 relative z-10 pb-28">
+        
+        {/* Header Blok 3 */}
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="bg-gradient-to-br from-teal-400 to-blue-500 p-3 rounded-xl text-white shadow-md">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-teal-600 tracking-wide uppercase">Blok III</p>
+            <h1 className="text-xl md:text-2xl font-bold text-slate-800">Daftar Anggota Keluarga</h1>
+          </div>
+        </div>
+
+        {/* Info Singkat Keluarga */}
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 p-5 mb-6 flex justify-between items-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-50 to-blue-50 rounded-bl-full -z-0 opacity-70"></div>
+          <div className="relative z-10">
+            <p className="text-xs font-semibold text-slate-500 uppercase mb-1">Nomor Kartu Keluarga</p>
+            <p className="text-lg font-bold text-slate-800">{keluargaInfo.no_kk || keluargaInfo.nomor_kk || '-'}</p>
+          </div>
+          <div className="text-right relative z-10">
+            <p className="text-xs font-semibold text-slate-500 uppercase mb-1">Total Anggota</p>
+            <p className="text-lg font-bold text-teal-600">{anggotaKeluarga.length} Orang</p>
+          </div>
+        </div>
+
+        {/* Tombol Tambah Anggota */}
+        <button
+          onClick={() => navigate(`/form-anggota-keluarga?id_keluarga=${idKeluarga}`)}
+          className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center space-x-2 mb-6 shadow-sm"
         >
-          <ArrowLeft size={20} />
-          <span className="font-medium">Kembali ke Daftar</span>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Detail Keluarga</h1>
-          <div className="w-16 h-1 bg-teal-400 rounded-full mt-2"></div>
-        </div>
-      </div>
+          <UserPlus className="w-5 h-5" />
+          <span>Tambah Anggota Baru</span>
+        </button>
 
-      {/* Kartu Informasi Keluarga */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-teal-50 to-blue-50 rounded-bl-full -z-0 opacity-70"></div>
-        
-        <div className="relative z-10 p-6 md:p-8">
-          <p className="text-gray-500 text-sm mb-5">Informasi Nomor KK dan identitas Kepala Keluarga.</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-slate-50/80 p-5 rounded-xl border border-gray-100/80 shadow-sm">
-              <p className="text-sm font-semibold text-gray-500 mb-1">Nomor KK</p>
-              <p className="text-xl font-bold text-gray-800 tracking-wide">{keluarga.no_kk || keluarga.nomor_kk}</p>
-            </div>
-            <div className="bg-slate-50/80 p-5 rounded-xl border border-gray-100/80 shadow-sm">
-              <p className="text-sm font-semibold text-gray-500 mb-1">Kepala Keluarga</p>
-              <p className="text-xl font-bold text-gray-800">{keluarga.nama_kepala_keluarga}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+        {/* Daftar Anggota Keluarga (List View dengan Accordion) */}
+        <div className="space-y-3">
+          {anggotaKeluarga.map((anggota, index) => {
+            const isExpanded = expandedRow === anggota.id_penduduk;
 
-      {/* Bagian Tabel List Anggota Keluarga Modern */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        
-        <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
-          <h2 className="text-xl font-bold text-gray-800">
-            Daftar Anggota <span className="text-teal-500">({anggotaKeluarga.length} Jiwa)</span>
-          </h2>
-          
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            <button
-              onClick={handleSyncAnggota}
-              disabled={isSyncing}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white shadow-md transition-all ${
-                isSyncing ? 'bg-teal-400 cursor-not-allowed' : 'bg-gradient-to-r from-teal-400 to-teal-500 hover:from-teal-500 hover:to-teal-600 hover:shadow-lg hover:-translate-y-0.5'
-              }`}
-            >
-              <RefreshCw size={18} className={isSyncing ? 'animate-spin' : ''} />
-              {isSyncing ? 'Syncing...' : 'Sync Anggota'}
-            </button>
-
-            <Link 
-              to={`/form-anggota-keluarga?id_keluarga=${idKeluarga}`}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white shadow-md transition-all bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg hover:-translate-y-0.5"
-            >
-              <UserPlus size={18} /> Tambah Anggota
-            </Link>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-[3rem_1fr_auto] items-center p-4 border-b border-gray-100 bg-white text-gray-500 font-semibold text-sm">
-          <div className="text-center">No</div>
-          <div>Nama Anggota Keluarga</div>
-          <div className="pr-4">Detail</div>
-        </div>
-
-        <div className="flex flex-col">
-          {anggotaKeluarga.length > 0 ? (
-            anggotaKeluarga.map((item, index) => {
-              const isExpanded = expandedRow === item.id_penduduk;
-
-              return (
-                <div key={item.id_penduduk} className="flex flex-col border-b border-gray-50 last:border-0">
-                  
-                  {/* MAIN ROW ANGGOTA */}
-                  <div 
-                    onClick={() => setExpandedRow(isExpanded ? null : item.id_penduduk)}
-                    className={`grid grid-cols-[3rem_1fr_auto] items-center p-3 sm:p-4 cursor-pointer transition-all duration-300
-                      ${isExpanded 
-                        ? 'bg-gradient-to-r from-blue-400 to-teal-400 text-white shadow-md scale-[1.01] rounded-lg mx-2 mt-2 z-10' 
-                        : 'bg-white text-gray-700 hover:bg-slate-50'
-                      }`}
-                  >
-                    <div className={`text-center font-medium ${isExpanded ? 'text-white' : 'text-gray-500'}`}>
-                      {index + 1}
+            return (
+              <div key={anggota.id_penduduk || index} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300">
+                
+                {/* Baris Utama (Bisa di-klik untuk membuka Accordion) */}
+                <div 
+                  onClick={() => setExpandedRow(isExpanded ? null : anggota.id_penduduk)}
+                  className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${
+                    isExpanded ? 'bg-gradient-to-r from-teal-400 to-blue-500 text-white' : 'hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-full flex-shrink-0 ${isExpanded ? 'bg-white/20' : 'bg-slate-100 text-slate-500'}`}>
+                      <UserCircle className="w-6 h-6" />
                     </div>
-
-                    <div className="flex items-center gap-3 font-medium">
-                      <div className={`p-2 rounded-full flex-shrink-0 ${isExpanded ? 'bg-white/20' : 'bg-slate-100 text-gray-400'}`}>
-                        <User size={18} />
-                      </div>
-                      <span className="truncate font-bold">{item.nama}</span>
-                    </div>
-
-                    <div className="flex items-center justify-end pr-2">
-                      {isExpanded ? <ChevronUp size={20} className="text-white" /> : <ChevronDown size={20} className="text-gray-400" />}
+                    <div>
+                      <h3 className={`font-bold text-sm md:text-base ${isExpanded ? 'text-white' : 'text-slate-800'}`}>
+                        {anggota.nama || anggota.nama_lengkap}
+                      </h3>
+                      <p className={`text-xs font-medium ${isExpanded ? 'text-teal-50' : 'text-slate-500'}`}>
+                        {anggota.hubungan_keluarga}
+                      </p>
                     </div>
                   </div>
+                  
+                  <div className="pr-2">
+                    {isExpanded ? <ChevronUp size={20} className="text-white" /> : <ChevronDown size={20} className="text-slate-400" />}
+                  </div>
+                </div>
 
-                  {/* ACCORDION PANEL */}
-                  {isExpanded && (
-                    <div className="bg-slate-50 border-x border-b border-gray-100 rounded-b-lg mx-2 mb-2 shadow-inner">
-                      <div className="p-5">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 text-sm pl-4 border-l-4 border-teal-400">
-                          
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">NIK (Nomor Induk Kependudukan)</p>
-                            <p className="font-bold text-gray-800 font-mono mt-0.5">{item.nik || '-'}</p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Hubungan Keluarga</p>
-                            <p className="font-bold text-gray-800 mt-0.5">{item.hubungan_keluarga || '-'}</p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Umur</p>
-                            <p className="font-bold text-gray-800 mt-0.5">{item.umur ? `${item.umur} Tahun` : '-'}</p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Tempat / Tanggal Lahir</p>
-                            <p className="font-bold text-gray-800 mt-0.5">
-                              {item.tempat_lahir || '-'}, {formatTanggal(item.tanggal_lahir)}
-                            </p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Status Pernikahan</p>
-                            <p className="font-bold text-gray-800 mt-0.5">{item.status_pernikahan || '-'}</p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Golongan Darah</p>
-                            <p className="font-bold text-gray-800 mt-0.5">{item.golongan_darah || '-'}</p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Pendidikan (Sesuai KK)</p>
-                            <p className="font-bold text-gray-800 mt-0.5">{item.pendidikan_kk || '-'}</p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Pekerjaan</p>
-                            <p className="font-bold text-gray-800 mt-0.5">{item.pekerjaan || '-'}</p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Nama Orang Tua (Ayah / Ibu)</p>
-                            <p className="font-bold text-gray-800 mt-0.5">
-                              {item.nama_ayah || '-'} / {item.nama_ibu || '-'}
-                            </p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Status Kependudukan</p>
-                            <p className="font-bold text-gray-800 mt-0.5">{item.status || '-'}</p>
-                          </div>
-
-                          <div>
-                            <p className="text-gray-400 font-medium text-xs uppercase">Status Sinkronisasi Server</p>
-                            <p className={`font-bold mt-0.5 ${item.synced ? 'text-green-600' : 'text-yellow-600'}`}>
-                              {item.synced ? '✓ Tersinkronisasi' : '⏳ Menunggu Sinkronisasi'}
-                            </p>
-                          </div>
-
-                        </div>
-
-                        {/* 🔥 Tombol Edit di Bagian Bawah Accordion */}
-                        <div className="mt-6 pt-5 border-t border-gray-200 flex justify-end">
-                          <Link 
-                            to={`/form-anggota-keluarga?id_keluarga=${idKeluarga}&id=${item.id_penduduk}`}
-                            className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
-                          >
-                            <Edit3 size={18} /> Edit Data Anggota
-                          </Link>
-                        </div>
-
+                {/* Panel Accordion (Rincian Anggota) */}
+                {isExpanded && (
+                  <div className="bg-slate-50 border-t border-slate-100 p-5">
+                    <div className="grid grid-cols-2 gap-4 text-sm mb-6">
+                      <div>
+                        <p className="text-slate-400 font-medium text-xs uppercase">NIK</p>
+                        <p className="font-bold text-slate-800 mt-0.5">{anggota.nik || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium text-xs uppercase">Umur</p>
+                        <p className="font-bold text-slate-800 mt-0.5">{anggota.umur ? `${anggota.umur} Tahun` : '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium text-xs uppercase">TTL</p>
+                        <p className="font-bold text-slate-800 mt-0.5">
+                          {anggota.tempat_lahir || '-'}, {formatTanggal(anggota.tanggal_lahir)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium text-xs uppercase">Status Pernikahan</p>
+                        <p className="font-bold text-slate-800 mt-0.5">{anggota.status_pernikahan || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium text-xs uppercase">Pendidikan (KK)</p>
+                        <p className="font-bold text-slate-800 mt-0.5">{anggota.pendidikan_kk || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium text-xs uppercase">Pekerjaan</p>
+                        <p className="font-bold text-slate-800 mt-0.5">{anggota.pekerjaan || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium text-xs uppercase">Golongan Darah</p>
+                        <p className="font-bold text-slate-800 mt-0.5">{anggota.golongan_darah || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 font-medium text-xs uppercase">Status</p>
+                        <p className="font-bold text-slate-800 mt-0.5">{anggota.status || '-'}</p>
                       </div>
                     </div>
-                  )}
 
-                </div>
-              );
-            })
-          ) : (
-            <div className="text-center p-12 bg-white">
-              <div className="flex flex-col items-center justify-center text-gray-400 gap-2">
-                <ShieldAlert size={32} className="opacity-50" />
-                <p>Belum ada data anggota keluarga.</p>
+                    {/* Tombol Aksi di dalam Accordion */}
+                    <div className="flex gap-3 border-t border-slate-200 pt-4">
+                      <Link 
+                        to={`/form-anggota-keluarga?id_keluarga=${idKeluarga}&id=${anggota.id_penduduk}`}
+                        className="flex-1 flex items-center justify-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
+                      >
+                        <Edit3 size={16} /> Edit Data
+                      </Link>
+                      
+                      {/* Proteksi: Kepala Keluarga tidak boleh dihapus dari sini */}
+                      {anggota.hubungan_keluarga !== 'KEPALA KELUARGA' && (
+                        <button 
+                          onClick={() => handleDeleteAnggota(anggota.id_penduduk)}
+                          className="flex-none flex items-center justify-center gap-2 bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
+                        >
+                          <Trash2 size={16} /> Hapus
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
+            );
+          })}
+
+          {anggotaKeluarga.length === 0 && (
+            <div className="text-center p-8 bg-white rounded-xl border border-dashed border-slate-300">
+              <p className="text-slate-500 text-sm font-medium">Belum ada anggota keluarga yang ditambahkan.</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Fixed Footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-slate-200 p-4 z-40">
+        <div className="max-w-lg mx-auto flex gap-3">
+          {/* Tombol Kiri: Kembali ke Blok 2 */}
+          <button
+            type="button"
+            onClick={() => navigate(`/form/blok2?id_keluarga=${idKeluarga}`)}
+            className="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3.5 rounded-xl transition flex items-center justify-center space-x-2 border border-slate-200"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="inline">Blok II</span>
+          </button>
+          
+          {/* Tombol Kanan: Selesai (Kembali ke List Keluarga) */}
+          <button
+            type="button"
+            onClick={() => navigate('/list-keluarga')}
+            className="w-1/2 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2"
+          >
+            <CheckCircle className="w-5 h-5" />
+            <span>Selesai Pendataan</span>
+          </button>
         </div>
       </div>
 

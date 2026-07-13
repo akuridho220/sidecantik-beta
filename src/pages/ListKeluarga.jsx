@@ -34,7 +34,7 @@ export default function ListKeluarga() {
   }, []);
 
   const loadLocalData = () => {
-    const data = JSON.parse(localStorage.getItem('keluarga')) || [];
+    const data = JSON.parse(localStorage.getItem('data_keluarga')) || [];
     setKeluargaData(data);
   };
 

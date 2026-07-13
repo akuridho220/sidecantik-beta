@@ -96,21 +96,33 @@ export default function FormBlok2() {
 
   useEffect(() => {
     if (idKeluarga) {
-      const dataKeluargaLokal = JSON.parse(localStorage.getItem('keluarga')) || [];
-      const keluargaSaatIni = dataKeluargaLokal.find(k => k.id_keluarga === idKeluarga);
+      const semuaDrafBlok2 = JSON.parse(localStorage.getItem('draft_blok2_keberadaan-keluarga')) || [];
 
-      if (keluargaSaatIni) {
-        setFormData(prev => ({
-          ...prev,
-          nomor_kk: keluargaSaatIni.no_kk || '',
-          nama_kepala_keluarga: keluargaSaatIni.nama_kepala_keluarga || '',
-          jumlah_anggota: keluargaSaatIni.jumlah_anggota,
-          latitude: keluargaSaatIni.latitude || '',
-          longitude: keluargaSaatIni.longitude || ''
-        }));
+      const drafTersimpan = semuaDrafBlok2.find(d => d.id_keluarga === idKeluarga);
 
-        if (keluargaSaatIni.latitude && keluargaSaatIni.longitude) {
-          setMapPosition([parseFloat(keluargaSaatIni.latitude), parseFloat(keluargaSaatIni.longitude)]);
+      if (drafTersimpan) {
+        setFormData(drafTersimpan);
+        
+        if (drafTersimpan.latitude && drafTersimpan.longitude) {
+          setMapPosition([parseFloat(drafTersimpan.latitude), parseFloat(drafTersimpan.longitude)]);
+        }
+      } else {
+        const dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
+        const keluargaSaatIni = dataKeluargaLokal.find(k => k.id_keluarga === idKeluarga);
+
+        if (keluargaSaatIni) {
+          setFormData(prev => ({
+            ...prev,
+            nomor_kk: keluargaSaatIni.no_kk || '',
+            nama_kepala_keluarga: keluargaSaatIni.nama_kepala_keluarga || '',
+            jumlah_anggota: keluargaSaatIni.jumlah_anggota || '',
+            latitude: keluargaSaatIni.latitude || '',
+            longitude: keluargaSaatIni.longitude || ''
+          }));
+
+          if (keluargaSaatIni.latitude && keluargaSaatIni.longitude) {
+            setMapPosition([parseFloat(keluargaSaatIni.latitude), parseFloat(keluargaSaatIni.longitude)]);
+          }
         }
       }
     }
@@ -169,7 +181,6 @@ export default function FormBlok2() {
         },
         () => {
           setIsLocating(false);
-          // Gagal mengambil lokasi, biarkan di default
         },
         { enableHighAccuracy: true }
       );
@@ -198,14 +209,31 @@ export default function FormBlok2() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!formData.status_keberadaan) {
+      alert("Mohon pilih Status Keberadaan terlebih dahulu.");
+      return;
+    }
+
     const dataDisimpan = { ...formData, id_keluarga: idKeluarga };
-    localStorage.setItem('blok2_keberadaan', JSON.stringify(dataDisimpan));
+
+    let semuaDrafBlok2 = JSON.parse(localStorage.getItem('draft_blok2_keberadaan')) || [];
+    const indexDraf = semuaDrafBlok2.findIndex(d => d.id_keluarga === idKeluarga);
+
+    if (indexDraf !== -1) {
+      semuaDrafBlok2[indexDraf] = dataDisimpan;
+    } else {
+      semuaDrafBlok2.push(dataDisimpan);
+    }
+
+
+    localStorage.setItem('draft_blok2_keberadaan-keluarga', JSON.stringify(semuaDrafBlok2));
     
     const statusSkip = ['Pindah Keluar SLS', 'Tidak Ditemukan', 'Tidak Tahu'].includes(formData.status_keberadaan);
     if (statusSkip) {
       navigate(`/form-blok-catatan?id_keluarga=${idKeluarga}`);
     } else {
-      navigate(`/form-blok-3?id_keluarga=${idKeluarga}`);
+      navigate(`/form/blok3/detail-keluarga?id_keluarga=${idKeluarga}`);
     }
   };
 

@@ -21,6 +21,7 @@ function App() {
             <Route path="/list-keluarga" element={<ListKeluarga />} />
             <Route path="/form/blok1" element={<FormulirBlok1 />} />
             <Route path="/form/blok2" element={<FormulirBlok2 />} />
+            <Route path='/form/blok3/detail-keluarga' element={<DetailKeluarga />} />
           </Route>
         </Routes>
       </div>

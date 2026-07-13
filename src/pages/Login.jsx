@@ -15,7 +15,6 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Memanggil API Login Backend yang sudah kita buat sebelumnya
       const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,10 +27,8 @@ export default function Login() {
         throw new Error(data.message || 'Terjadi kesalahan, periksa kredensial Anda.');
       }
 
-      // Jika sukses, simpan data user (termasuk daftar_sls) ke localStorage
-      localStorage.setItem('userData', JSON.stringify(data.user));
+      localStorage.setItem('auth_user', JSON.stringify(data.user));
       
-      // Arahkan ke halaman utama
       navigate('/');
     } catch (err) {
       setError(err.message);
