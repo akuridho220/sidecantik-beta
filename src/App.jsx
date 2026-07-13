@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import DetailKeluarga from './pages/DetailKeluarga';
 import FormulirBlok2 from './pages/FormulirBlok2';
+import FormulirBlok3 from './pages/FormulirBlok3';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/form/blok1" element={<FormulirBlok1 />} />
             <Route path="/form/blok2" element={<FormulirBlok2 />} />
             <Route path='/form/blok3/detail-keluarga' element={<DetailKeluarga />} />
+            <Route path='/form/blok3' element={<FormulirBlok3 />} />
           </Route>
         </Routes>
       </div>

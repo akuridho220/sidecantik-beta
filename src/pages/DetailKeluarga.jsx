@@ -38,16 +38,14 @@ export default function DetailKeluarga() {
 
   useEffect(() => {
     if (idKeluarga) {
-      // 1. Ambil Identitas Keluarga
       const dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
       const keluargaSaatIni = dataKeluargaLokal.find(k => k.id_keluarga === idKeluarga);
       setKeluargaInfo(keluargaSaatIni);
 
-      // 2. Ambil Daftar Anggota Keluarga
       const dataPendudukLokal = JSON.parse(localStorage.getItem('data_penduduk')) || [];
       const anggotaTerkait = dataPendudukLokal.filter(p => p.id_keluarga === idKeluarga);
       
-      // 3. Urutkan agar KEPALA KELUARGA selalu berada di urutan No. 1
+      
       anggotaTerkait.sort((a, b) => {
         if (a.hubungan_keluarga === 'KEPALA KELUARGA') return -1;
         if (b.hubungan_keluarga === 'KEPALA KELUARGA') return 1;
@@ -58,25 +56,6 @@ export default function DetailKeluarga() {
     }
   }, [idKeluarga]);
 
-  // Fungsi hapus anggota + logika Unsync Berantai
-  const handleDeleteAnggota = (idPenduduk) => {
-    if(window.confirm('Yakin ingin menghapus anggota keluarga ini?')) {
-      // Hapus dari data penduduk
-      const dataPendudukLokal = JSON.parse(localStorage.getItem('penduduk')) || [];
-      const updatedPenduduk = dataPendudukLokal.filter(p => p.id_penduduk !== idPenduduk);
-      localStorage.setItem('penduduk', JSON.stringify(updatedPenduduk));
-      
-      // Cascade Unsync: Ubah status keluarga menjadi draft/unsynced karena datanya berubah
-      const dataKeluargaLokal = JSON.parse(localStorage.getItem('keluarga')) || [];
-      const updatedKeluarga = dataKeluargaLokal.map(k => 
-        k.id_keluarga === idKeluarga ? { ...k, synced: false, status: 'draft' } : k
-      );
-      localStorage.setItem('keluarga', JSON.stringify(updatedKeluarga));
-
-      // Perbarui tampilan tabel anggota saat ini
-      setAnggotaKeluarga(updatedPenduduk.filter(p => p.id_keluarga === idKeluarga));
-    }
-  };
 
   if (!keluargaInfo) return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8 text-slate-500 font-medium">
@@ -100,7 +79,7 @@ export default function DetailKeluarga() {
           </div>
           <div>
             <p className="text-sm font-bold text-teal-600 tracking-wide uppercase">Blok III</p>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-800">Daftar Anggota Keluarga</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-slate-800">Anggota Keluarga</h1>
           </div>
         </div>
 
@@ -129,14 +108,14 @@ export default function DetailKeluarga() {
         {/* Daftar Anggota Keluarga (List View dengan Accordion) */}
         <div className="space-y-3">
           {anggotaKeluarga.map((anggota, index) => {
-            const isExpanded = expandedRow === anggota.id_penduduk;
+            const isExpanded = expandedRow === anggota.id_anggota_keluarga;
 
             return (
-              <div key={anggota.id_penduduk || index} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300">
+              <div key={anggota.id_anggota_keluarga || index} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300">
                 
                 {/* Baris Utama (Bisa di-klik untuk membuka Accordion) */}
                 <div 
-                  onClick={() => setExpandedRow(isExpanded ? null : anggota.id_penduduk)}
+                  onClick={() => setExpandedRow(isExpanded ? null : anggota.id_anggota_keluarga)}
                   className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${
                     isExpanded ? 'bg-gradient-to-r from-teal-400 to-blue-500 text-white' : 'hover:bg-slate-50'
                   }`}
@@ -180,44 +159,44 @@ export default function DetailKeluarga() {
                       </div>
                       <div>
                         <p className="text-slate-400 font-medium text-xs uppercase">Status Pernikahan</p>
-                        <p className="font-bold text-slate-800 mt-0.5">{anggota.status_pernikahan || '-'}</p>
+                        <p className="font-bold text-slate-800 mt-0.5">{anggota.status_perkawinan || '-'}</p>
                       </div>
                       <div>
                         <p className="text-slate-400 font-medium text-xs uppercase">Pendidikan (KK)</p>
-                        <p className="font-bold text-slate-800 mt-0.5">{anggota.pendidikan_kk || '-'}</p>
+                        <p className="font-bold text-slate-800 mt-0.5">{anggota.pendidikan_tertinggi || '-'}</p>
                       </div>
                       <div>
                         <p className="text-slate-400 font-medium text-xs uppercase">Pekerjaan</p>
                         <p className="font-bold text-slate-800 mt-0.5">{anggota.pekerjaan || '-'}</p>
                       </div>
-                      <div>
+                      {/* <div>
                         <p className="text-slate-400 font-medium text-xs uppercase">Golongan Darah</p>
                         <p className="font-bold text-slate-800 mt-0.5">{anggota.golongan_darah || '-'}</p>
                       </div>
                       <div>
                         <p className="text-slate-400 font-medium text-xs uppercase">Status</p>
                         <p className="font-bold text-slate-800 mt-0.5">{anggota.status || '-'}</p>
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* Tombol Aksi di dalam Accordion */}
                     <div className="flex gap-3 border-t border-slate-200 pt-4">
                       <Link 
-                        to={`/form-anggota-keluarga?id_keluarga=${idKeluarga}&id=${anggota.id_penduduk}`}
+                        to={`/form/blok3?id_keluarga=${idKeluarga}&id_anggota_keluarga=${anggota.id_anggota_keluarga}`}
                         className="flex-1 flex items-center justify-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
                       >
-                        <Edit3 size={16} /> Edit Data
+                        <Edit3 size={16} /> Lengkapi Data
                       </Link>
                       
                       {/* Proteksi: Kepala Keluarga tidak boleh dihapus dari sini */}
-                      {anggota.hubungan_keluarga !== 'KEPALA KELUARGA' && (
+                      {/* {anggota.hubungan_keluarga !== 'KEPALA KELUARGA' && (
                         <button 
-                          onClick={() => handleDeleteAnggota(anggota.id_penduduk)}
+                          onClick={() => handleDeleteAnggota(anggota.id_anggota_keluarga)}
                           className="flex-none flex items-center justify-center gap-2 bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
                         >
                           <Trash2 size={16} /> Hapus
                         </button>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 )}
@@ -253,7 +232,7 @@ export default function DetailKeluarga() {
             className="w-1/2 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2"
           >
             <CheckCircle className="w-5 h-5" />
-            <span>Selesai Pendataan</span>
+            <span>Blok IV. Catatan</span>
           </button>
         </div>
       </div>
