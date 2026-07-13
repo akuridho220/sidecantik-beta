@@ -68,56 +68,113 @@ export default function Home() {
 
   // 🔥 FUNGSI FULL SYNC (Menarik semua keluarga & anggota untuk seluruh wilayah tugas)
   const handleFullSync = async () => {
-    if (!userData || !userData.daftar_sls || userData.daftar_sls.length === 0) {
-      showToast('Gagal: Kamu belum memiliki wilayah tugas.', 'error');
-      return;
-    }
-
-    setIsSyncing(true);
-    showToast('Memulai sinkronisasi data dari server...', 'success');
-
     try {
-      let fetchedKeluarga = [];
-      let fetchedPenduduk = [];
+      // Tampilkan loading/spinner di UI (opsional, disesuaikan dengan state kamu)
+      setIsSyncing(true); 
+      showToast('Memulai sinkronisasi data dari server...', 'success');
 
-      // 1. Looping untuk setiap wilayah tugas (SLS) yang dimiliki user 
-      for (const slsId of userData.daftar_sls) {
+      const userData = JSON.parse(localStorage.getItem('auth_user'));
+      if (!userData || !userData.daftar_sls || userData.daftar_sls.length === 0) {
+        showToast('Gagal: Kamu belum memiliki wilayah tugas.', 'error');
+        return;
+      }
+
+      // ==========================================
+      // TAHAP 1: PUSH (UPLOAD DATA LOKAL KE SERVER)
+      // ==========================================
+      const dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
+      const drafBlok2Lokal = JSON.parse(localStorage.getItem('draft_blok2_keberadaan-keluarga')) || [];
+      const dataPendudukLokal = JSON.parse(localStorage.getItem('data_penduduk')) || [];
+
+      // Filter data yang siap di-upload
+      const keluargaSiapSync = dataKeluargaLokal.filter(k => k.status === 'selesai' && k.synced === false);
+      
+      if (keluargaSiapSync.length > 0) {
+        // Gabungkan dengan draf Blok 2
+        const payloadKeluarga = keluargaSiapSync.map(keluarga => {
+          const blok2Terkait = drafBlok2Lokal.find(draf => draf.id_keluarga === keluarga.id_keluarga) || {};
+          return { ...keluarga, ...blok2Terkait };
+        });
+
+        const listIdKeluargaSync = keluargaSiapSync.map(k => k.id_keluarga);
         
-        // Ambil Data Keluarga di SLS ini 
-        const resKeluarga = await fetch(`http://localhost:3001/api/keluarga/sls/${slsId}`);
-        if (resKeluarga.ok) {
-          const dataKeluarga = await resKeluarga.json();
-          const syncedKel = dataKeluarga.map(k => ({ ...k, synced: false, status: 'open' }));
-          fetchedKeluarga = [...fetchedKeluarga, ...syncedKel];
+        // Ambil penduduk dari keluarga yang ikut di-sync
+        const payloadPenduduk = dataPendudukLokal.filter(p => 
+          listIdKeluargaSync.includes(p.id_keluarga) && 
+          p.status_dokumen_blok3 === 'draft'
+        );
 
-          // 2. Looping untuk setiap keluarga guna mengambil anggota keluarganya
-          for (const kel of dataKeluarga) {
-            const idKel = kel.id_keluarga || kel.id;
-            const resPenduduk = await fetch(`http://localhost:3001/api/penduduk/keluarga/${idKel}`);
-            if (resPenduduk.ok) {
-              const dataPenduduk = await resPenduduk.json();
-              const syncedPen = dataPenduduk.map(p => ({ ...p, synced: false }));
-              fetchedPenduduk = [...fetchedPenduduk, ...syncedPen];
+        // Upload Keluarga
+        const resKeluarga = await fetch('http://localhost:3001/api/keluarga/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payloadKeluarga)
+        });
+        if (!resKeluarga.ok) throw new Error("Gagal upload data keluarga.");
+
+        // Upload Penduduk
+        if (payloadPenduduk.length > 0) {
+          const resPenduduk = await fetch('http://localhost:3001/api/penduduk/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadPenduduk)
+          });
+          if (!resPenduduk.ok) throw new Error("Gagal upload data penduduk.");
+        }
+      }
+
+      // ==========================================
+      // TAHAP 2: PULL (DOWNLOAD DATA TERBARU DARI SERVER)
+      // ==========================================
+      let semuaKeluargaServer = [];
+      let semuaPendudukServer = [];
+
+      // Looping untuk menarik data berdasarkan SLS yang dimiliki petugas
+      for (const id_sls of userData.daftar_sls) {
+        // 1. Tarik Data Keluarga
+        const resKeluargaPull = await fetch(`http://localhost:3001/api/keluarga/sls/${id_sls}`);
+        if (resKeluargaPull.ok) {
+          const data = await resKeluargaPull.json();
+          // Beri tanda bahwa data dari server ini sudah tersinkronisasi
+          const dataSynced = data.map(item => ({ ...item, synced: true }));
+          semuaKeluargaServer = [...semuaKeluargaServer, ...dataSynced];
+          
+          // 2. Tarik Data Penduduk untuk setiap keluarga yang ditarik
+          for (const keluarga of dataSynced) {
+            const resPendudukPull = await fetch(`http://localhost:3001/api/penduduk/keluarga/${keluarga.id_keluarga}`);
+            if (resPendudukPull.ok) {
+              const pendudukData = await resPendudukPull.json();
+              const pendudukSynced = pendudukData.map(item => ({ ...item, synced: true, status_dokumen_blok3: 'selesai' }));
+              semuaPendudukServer = [...semuaPendudukServer, ...pendudukSynced];
             }
           }
         }
       }
 
-      // 3. Simpan data yang telah ditarik secara massal ke Local Storage
-      // Catatan: Ini akan menimpa data lokal. Pastikan data lokal yang unsynced
-      // sudah di-push sebelumnya (atau jalankan fungsi upload jika diperlukan).
-      localStorage.setItem('data_keluarga', JSON.stringify(fetchedKeluarga));
-      localStorage.setItem('data_penduduk', JSON.stringify(fetchedPenduduk));
+      // ==========================================
+      // TAHAP 3: UPDATE LOCAL STORAGE
+      // ==========================================
+      // Karena kita baru saja meng-upload semua draft kita yang selesai, 
+      // kita bisa menimpa data lokal dengan data fresh dari server secara aman.
+      localStorage.setItem('data_keluarga', JSON.stringify(semuaKeluargaServer));
+      localStorage.setItem('data_penduduk', JSON.stringify(semuaPendudukServer));
 
-      kalkulasiStatistik(); // Update angka dashboard
+      // Bersihkan draf Blok 2 yang sudah terkirim agar HP tidak penuh
+      const sisaDrafBlok2 = drafBlok2Lokal.filter(draf => {
+        // Pertahankan draf yang id_keluarganya TIDAK ADA di dalam data yang di-pull dari server
+        return !semuaKeluargaServer.some(k => k.id_keluarga === draf.id_keluarga);
+      });
+      localStorage.setItem('draft_blok2_keberadaan-keluarga', JSON.stringify(sisaDrafBlok2));
+
+      kalkulasiStatistik();
       showToast('Sinkronisasi penuh berhasil! 🚀', 'success');
 
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Full Sync Error:", error);
       showToast('Sync gagal ❌. Pastikan server menyala.', 'error');
     } finally {
       setIsSyncing(false);
-      setIsFabOpen(false); // Tutup FAB setelah ditekan
+      setIsFabOpen(false);
     }
   };
   
