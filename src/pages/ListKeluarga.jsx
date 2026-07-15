@@ -189,12 +189,18 @@ export default function ListKeluarga() {
                             >
                               Detail Keluarga
                             </Link> */}
-                            <Link 
+                            {
+                              (item.status && item.status.toUpperCase() === 'SUBMITTED') ? (
+                                <div></div>
+                              ):(
+                                <Link 
                               to={`/form/blok1?id_keluarga=${item.id_keluarga || item.id}`}
                               className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"
-                            >
-                              Open
-                            </Link>
+                              >
+                                Open
+                              </Link>
+                              )
+                            }
                           </div>
 
                         </div>

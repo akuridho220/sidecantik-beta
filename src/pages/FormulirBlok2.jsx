@@ -120,7 +120,7 @@ export default function FormBlok2() {
             longitude: keluargaSaatIni.longitude || '',
             status_keberadaan: keluargaSaatIni.status_keberadaan || '',
             kesesuaian_domisili: keluargaSaatIni.kesesuaian_domisili || '',
-            nomor_hp: keluargaSaatIni.nomor_hp || '',
+            nomor_hp: keluargaSaatIni.nomor_hp || keluargaSaatIni.no_hp || '',
             alamat: keluargaSaatIni.alamat || ''
           }));
 
