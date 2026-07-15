@@ -276,7 +276,7 @@ export default function FormAnggotaKeluarga() {
       <div className="absolute top-0 left-0 w-64 h-64 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
 
-      <div className="flex-1 w-full max-w-xl mx-auto p-4 md:p-8 relative z-10 pb-28 flex flex-col justify-center">
+      <div className="flex-1 w-full max-w-xl mx-auto p-4 md:p-8 relative z-10 pb-96 flex flex-col justify-center">
         <div className="bg-white/80 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-xl border border-white/30">
           
           <div className="flex items-center space-x-4 mb-8">
@@ -467,6 +467,7 @@ export default function FormAnggotaKeluarga() {
                 onChange={(option) => handleSelectChange('pekerjaan', option)}
                 styles={customSelectStyles}
                 placeholder="-- Pilih Pekerjaan --"
+                isSearchable={false}
               />
             </div>
 
