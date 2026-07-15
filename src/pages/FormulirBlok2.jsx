@@ -240,6 +240,32 @@ export default function FormBlok2() {
     
     const statusSkip = ['Pindah Keluar SLS', 'Tidak Ditemukan', 'Tidak Tahu'].includes(formData.status_keberadaan);
     if (statusSkip) {
+      let dataPendudukLokal = JSON.parse(localStorage.getItem('data_penduduk')) || [];
+      let adaPerubahanPenduduk = false;
+
+      const updatedPenduduk = dataPendudukLokal.map(p => {
+        if (p.id_keluarga === idKeluarga) {
+          adaPerubahanPenduduk = true;
+
+          let tglLahirFormatted = p.tanggal_lahir || '';
+          if (tglLahirFormatted && tglLahirFormatted.includes('T')) {
+            tglLahirFormatted = tglLahirFormatted.split('T')[0];
+          }
+
+          return {
+            ...p,
+            tanggal_lahir: tglLahirFormatted,
+            status_penduduk: 'Tidak Ditemukan', 
+            status_dokumen_blok3: 'draft', 
+            synced: false
+          };
+        }
+        return p;
+      });
+
+      if (adaPerubahanPenduduk) {
+        localStorage.setItem('data_penduduk', JSON.stringify(updatedPenduduk));
+      }
       navigate(`/form/blok4?id_keluarga=${idKeluarga}`);
     } else {
       navigate(`/form/blok3/detail-keluarga?id_keluarga=${idKeluarga}`);
