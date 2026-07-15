@@ -136,7 +136,7 @@ export default function Home() {
         if (resKeluargaPull.ok) {
           const data = await resKeluargaPull.json();
           // Beri tanda bahwa data dari server ini sudah tersinkronisasi
-          const dataSynced = data.map(item => ({ ...item, synced: true }));
+          const dataSynced = data.map(item => ({ ...item, synced: true, status: item.status || 'open' }));
           semuaKeluargaServer = [...semuaKeluargaServer, ...dataSynced];
           
           // 2. Tarik Data Penduduk untuk setiap keluarga yang ditarik
@@ -144,7 +144,7 @@ export default function Home() {
             const resPendudukPull = await fetch(`http://localhost:3001/api/penduduk/keluarga/${keluarga.id_keluarga}`);
             if (resPendudukPull.ok) {
               const pendudukData = await resPendudukPull.json();
-              const pendudukSynced = pendudukData.map(item => ({ ...item, synced: true, status_dokumen_blok3: 'selesai' }));
+              const pendudukSynced = pendudukData.map(item => ({ ...item, status_dokumen_blok3: item.status_dokumen, synced: true}));
               semuaPendudukServer = [...semuaPendudukServer, ...pendudukSynced];
             }
           }
@@ -154,15 +154,42 @@ export default function Home() {
       // ==========================================
       // TAHAP 3: UPDATE LOCAL STORAGE
       // ==========================================
-      // Karena kita baru saja meng-upload semua draft kita yang selesai, 
-      // kita bisa menimpa data lokal dengan data fresh dari server secara aman.
-      localStorage.setItem('data_keluarga', JSON.stringify(semuaKeluargaServer));
-      localStorage.setItem('data_penduduk', JSON.stringify(semuaPendudukServer));
+      const mapKeluarga = new Map();
+      // 1. Masukkan data fresh dari server
+      semuaKeluargaServer.forEach(k => mapKeluarga.set(k.id_keluarga, k));
+      // 2. Masukkan data draft lokal (akan menimpa data server jika ID sama, atau menambah jika ID baru)
+      dataKeluargaLokal.forEach(k => {
+        if (k.status === 'draft') {
+          mapKeluarga.set(k.id_keluarga, k);
+        }
+      });
+      const finalKeluargaLokal = Array.from(mapKeluarga.values());
 
-      // Bersihkan draf Blok 2 yang sudah terkirim agar HP tidak penuh
+      // 🟢 B. GABUNGKAN DATA PENDUDUK
+      const mapPenduduk = new Map();
+      // 1. Masukkan data fresh dari server
+      semuaPendudukServer.forEach(p => mapPenduduk.set(p.id_anggota_keluarga, p));
+      // 2. Masukkan data draft lokal
+      dataPendudukLokal.forEach(p => {
+        if (p.status_dokumen_blok3 === 'draft' || p.synced === false) {
+          mapPenduduk.set(p.id_anggota_keluarga, p);
+        }
+      });
+      const finalPendudukLokal = Array.from(mapPenduduk.values());
+
+      // 🟢 C. SIMPAN HASIL GABUNGAN KE LOCAL STORAGE
+      localStorage.setItem('data_keluarga', JSON.stringify(finalKeluargaLokal));
+      localStorage.setItem('data_penduduk', JSON.stringify(finalPendudukLokal));
+
+      // Bersihkan draf Blok 2 HANYA untuk keluarga yang sudah berstatus 'selesai' dan 'synced'
       const sisaDrafBlok2 = drafBlok2Lokal.filter(draf => {
-        // Pertahankan draf yang id_keluarganya TIDAK ADA di dalam data yang di-pull dari server
-        return !semuaKeluargaServer.some(k => k.id_keluarga === draf.id_keluarga);
+        // Cek apakah di data final lokal, keluarga ini masih draft?
+        const keluargaDiLokal = finalKeluargaLokal.find(k => k.id_keluarga === draf.id_keluarga);
+        // Jika masih draft, pertahankan draf blok 2-nya!
+        if (keluargaDiLokal && (keluargaDiLokal.status === 'draft' || keluargaDiLokal.synced === false)) {
+          return true; 
+        }
+        return false; // Hapus jika sudah di-sync
       });
       localStorage.setItem('draft_blok2_keberadaan-keluarga', JSON.stringify(sisaDrafBlok2));
 

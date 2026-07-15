@@ -115,13 +115,13 @@ export default function ListKeluarga() {
               let statusBadge = "bg-yellow-100 text-yellow-600";
               
               if (item.status === 'submitted') {
-                statusBg = "bg-blue-50/60";
+                statusBg = "bg-blue-200/60";
                 statusBadge = "bg-blue-100 text-blue-600";
               } else if (item.status === 'draft') {
-                statusBg = "bg-orange-100/60";
+                statusBg = "bg-orange-200/60";
                 statusBadge = "bg-orange-100 text-orange-600";
               } else if (item.status === 'selesai'){
-                statusBg = "bg-emerald-100/60";
+                statusBg = "bg-emerald-200/60";
                 statusBadge = "bg-emerald-100 text-emerald-600";
               }
 
@@ -217,7 +217,7 @@ export default function ListKeluarga() {
       {/* ========================================= */}
       {/* FLOATING ACTION BUTTON (FAB) MENU         */}
       {/* ========================================= */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      {/* <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <div className={`flex flex-col items-end gap-3 transition-all duration-300 origin-bottom ${
             isFabOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-10 pointer-events-none'
           }`}>
@@ -226,20 +226,19 @@ export default function ListKeluarga() {
             className="flex items-center gap-2 bg-teal-600 text-white p-4 rounded-full shadow-lg border border-gray-100 hover:bg-gray-50 transition"
           >
             <RefreshCw size={28} />
-            {/* <span className="font-semibold pr-1">Sync Server</span> */}
+            <span className="font-semibold pr-1">Sync Server</span>
           </button>
 
           <Link 
-            to="/form-keluarga"
+            to="/form/blok1"
             onClick={() => setIsFabOpen(false)}
             className="flex items-center gap-2 bg-blue-600 text-white p-4 rounded-full shadow-lg border border-gray-100 hover:bg-gray-50 transition"
           >
             <UserPlus size={28} />
-            {/* <span className="font-semibold pr-1">Tambah Keluarga</span> */}
+            <span className="font-semibold pr-1">Tambah Keluarga</span>
           </Link>
         </div>
 
-        {/* Tombol Utama FAB (Gradient Biru-Teal) */}
         <button
           onClick={() => setIsFabOpen(!isFabOpen)}
           className={`text-white p-4 rounded-full shadow-[0_8px_20px_rgba(45,212,191,0.4)] transition-all duration-300 hover:scale-110 focus:outline-none ${
@@ -250,7 +249,7 @@ export default function ListKeluarga() {
         >
           {isFabOpen ? <X size={28} /> : <Plus size={28} />}
         </button>
-      </div>
+      </div> */}
 
     </div>
   );

@@ -36,6 +36,15 @@ export default function FormIdentitasWilayah() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    let dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga'));
+    if (Array.isArray(dataKeluargaLokal)) {
+      const indexKeluarga = dataKeluargaLokal.findIndex(k => k.id_keluarga === idKeluarga);
+      if (indexKeluarga !== -1) {
+        dataKeluargaLokal[indexKeluarga].synced = false;
+        dataKeluargaLokal[indexKeluarga].status = 'draft';
+        localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
+      }
+    }
     const dataDisimpan = {
       ...formData,
       id_keluarga: idKeluarga

@@ -218,6 +218,8 @@ export default function FormAnggotaKeluarga() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const finalIdAnggotaKeluarga = (idPenduduk && idPenduduk !== 'null') ? idPenduduk :  crypto.randomUUID();
+
     if (!formData.status_hubungan_keluarga) return alert("Pilih Hubungan dengan Kepala Keluarga!");
     if (!formData.status_penduduk) return alert("Pilih Status Penduduk!");
     if (!formData.jenis_kelamin) return alert("Pilih Jenis Kelamin!");
@@ -230,7 +232,7 @@ export default function FormAnggotaKeluarga() {
       ...(originalData || {}),
       ...formData,
       id_keluarga: idKeluarga,
-      id_penduduk: idPenduduk || `PND-${Date.now()}`,
+      id_penduduk: idPenduduk || finalIdAnggotaKeluarga,
       status_dokumen_blok3: 'draft',
       synced: false // Cascade Unsync
     };
@@ -335,7 +337,7 @@ export default function FormAnggotaKeluarga() {
             </div>
 
             {/* 4. Status Hubungan dengan KK */}
-            <div className="relative z-50">
+            <div className="relative z-60">
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">4. Status Hubungan dengan Kepala Keluarga</label>
               <Select
                 options={opsiHubungan}
@@ -358,7 +360,7 @@ export default function FormAnggotaKeluarga() {
             </div>
 
             {/* 5. Status Penduduk */}
-            <div className="relative z-40">
+            <div className="relative z-50">
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">5. Status Penduduk</label>
               <Select
                 options={opsiStatusPenduduk}
@@ -395,7 +397,7 @@ export default function FormAnggotaKeluarga() {
             </div>
 
             {/* 7. Jenis Kelamin */}
-            <div className="relative z-30">
+            <div className="relative z-40">
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">7. Jenis Kelamin</label>
               <Select
                 options={opsiJenisKelamin}
@@ -408,7 +410,7 @@ export default function FormAnggotaKeluarga() {
             </div>
 
             {/* 8. Agama */}
-            <div className="relative z-20">
+            <div className="relative z-30">
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">8. Agama</label>
               <Select
                 options={opsiAgama}
@@ -432,7 +434,7 @@ export default function FormAnggotaKeluarga() {
             </div>
 
             {/* 9. Status Perkawinan */}
-            <div className="relative z-10">
+            <div className="relative z-20">
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">9. Status Perkawinan</label>
               <Select
                 options={opsiPerkawinan}
@@ -445,12 +447,12 @@ export default function FormAnggotaKeluarga() {
             </div>
 
             {/* 10. Pendidikan Tertinggi */}
-            <div className="relative z-0">
+            <div className="relative z-10">
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">10. Pendidikan Tertinggi</label>
               <Select
                 options={opsiPendidikan}
                 value={getSelectObj(opsiPendidikan, formData.pendidikan_tertinggi)}
-                onChange={(option) => handleSelectChange('pendidikan_kk', option)}
+                onChange={(option) => handleSelectChange('pendidikan_tertinggi', option)}
                 styles={customSelectStyles}
                 placeholder="-- Pilih Pendidikan --"
               />

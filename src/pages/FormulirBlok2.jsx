@@ -215,9 +215,9 @@ export default function FormBlok2() {
       return;
     }
 
-    const dataDisimpan = { ...formData, id_keluarga: idKeluarga };
+    const dataDisimpan = { ...formData, id_keluarga: idKeluarga};
 
-    let semuaDrafBlok2 = JSON.parse(localStorage.getItem('draft_blok2_keberadaan')) || [];
+    let semuaDrafBlok2 = JSON.parse(localStorage.getItem('draft_blok2_keberadaan-keluarga')) || [];
     const indexDraf = semuaDrafBlok2.findIndex(d => d.id_keluarga === idKeluarga);
 
     if (indexDraf !== -1) {
@@ -226,12 +226,21 @@ export default function FormBlok2() {
       semuaDrafBlok2.push(dataDisimpan);
     }
 
+    let dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga'));
+    if (Array.isArray(dataKeluargaLokal)) {
+      const indexKeluarga = dataKeluargaLokal.findIndex(k => k.id_keluarga === idKeluarga);
+      if (indexKeluarga !== -1) {
+        dataKeluargaLokal[indexKeluarga].synced = false;
+        dataKeluargaLokal[indexKeluarga].status = 'draft';
+        localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
+      }
+    }
 
     localStorage.setItem('draft_blok2_keberadaan-keluarga', JSON.stringify(semuaDrafBlok2));
     
     const statusSkip = ['Pindah Keluar SLS', 'Tidak Ditemukan', 'Tidak Tahu'].includes(formData.status_keberadaan);
     if (statusSkip) {
-      navigate(`/form-blok-catatan?id_keluarga=${idKeluarga}`);
+      navigate(`/form/blok4?id_keluarga=${idKeluarga}`);
     } else {
       navigate(`/form/blok3/detail-keluarga?id_keluarga=${idKeluarga}`);
     }
