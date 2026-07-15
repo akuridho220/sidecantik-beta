@@ -111,7 +111,7 @@ export default function DetailKeluarga() {
 
         {/* Tombol Tambah Anggota */}
         <button
-          onClick={() => navigate(`/form-anggota-keluarga?id_keluarga=${idKeluarga}`)}
+          onClick={() => navigate(`/form/blok3/?id_keluarga=${idKeluarga}`)}
           className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center space-x-2 mb-6 shadow-sm"
         >
           <UserPlus className="w-5 h-5" />

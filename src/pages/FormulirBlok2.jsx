@@ -117,7 +117,11 @@ export default function FormBlok2() {
             nama_kepala_keluarga: keluargaSaatIni.nama_kepala_keluarga || '',
             jumlah_anggota: keluargaSaatIni.jumlah_anggota || '',
             latitude: keluargaSaatIni.latitude || '',
-            longitude: keluargaSaatIni.longitude || ''
+            longitude: keluargaSaatIni.longitude || '',
+            status_keberadaan: keluargaSaatIni.status_keberadaan || '',
+            kesesuaian_domisili: keluargaSaatIni.kesesuaian_domisili || '',
+            nomor_hp: keluargaSaatIni.nomor_hp || '',
+            alamat: keluargaSaatIni.alamat || ''
           }));
 
           if (keluargaSaatIni.latitude && keluargaSaatIni.longitude) {
