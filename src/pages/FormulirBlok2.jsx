@@ -26,9 +26,9 @@ const opsiStatusKeberadaan = [
 ];
 
 const opsiKesesuaianDomisili = [
-  { value: 'Alamat KK dan domisili sesuai SLS', label: '1. Alamat KK dan domisili sesuai SLS' },
-  { value: 'Alamat KK diluar SLS', label: '2. Alamat KK diluar SLS' },
-  { value: 'Domisili diluar SLS', label: '3. Domisili diluar SLS' }
+  { value: 'ALAMAT KK DAN DOMISILI SESUAI SLS', label: '1. Alamat KK dan domisili sesuai SLS' },
+  { value: 'ALAMAT KK DILUAR SLS', label: '2. Alamat KK diluar SLS' },
+  { value: 'DOMISILI DILUAR SLS', label: '3. Domisili diluar SLS' }
 ];
 
 const customSelectStyles = {
@@ -79,6 +79,8 @@ export default function FormBlok2() {
 
   const defaultPosition = [-0.789275, 113.921327];
   const [mapPosition, setMapPosition] = useState(defaultPosition);
+
+  const [isKadus, setIsKadus] = useState(false);
   
   const [formData, setFormData] = useState({
     nomor_kk: '',
@@ -95,6 +97,11 @@ export default function FormBlok2() {
   const markerRef = useRef(null);
 
   useEffect(() => {
+    const dataUser = JSON.parse(localStorage.getItem('auth_user')) || [];
+    if(dataUser.role === 'KEPALA DUSUN'){
+      setIsKadus(true);
+    }
+
     if (idKeluarga) {
       const semuaDrafBlok2 = JSON.parse(localStorage.getItem('draft_blok2_keberadaan-keluarga')) || [];
 
@@ -322,8 +329,13 @@ export default function FormBlok2() {
                   required
                   value={formData.nomor_kk}
                   onChange={handleChange}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
+                  className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                   placeholder="Masukkan No KK"
+                  readOnly={isKadus}
                 />
               </div>
               <div>
@@ -334,8 +346,13 @@ export default function FormBlok2() {
                   required
                   value={formData.nama_kepala_keluarga}
                   onChange={handleChange}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
+                  className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                   placeholder="Nama Kepala Keluarga"
+                  readOnly={isKadus}
                 />
               </div>
             </div>
@@ -350,6 +367,7 @@ export default function FormBlok2() {
                 styles={customSelectStyles}
                 placeholder="-- Pilih Status --"
                 isSearchable={false} // Matikan ketik-cari jika opsinya sedikit
+                isDisabled={isKadus}
               />
             </div>
 
@@ -377,8 +395,13 @@ export default function FormBlok2() {
                     required={!isSkipLanjut}
                     value={formData.jumlah_anggota}
                     onChange={handleChange}
-                    className="w-full bg-white border border-slate-200 rounded-xl p-3.5 pr-16 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                     placeholder="0"
+                    readOnly={isKadus}
                   />
                   <span className="absolute right-4 top-3.5 text-slate-400 font-medium">orang</span>
                 </div>
@@ -393,8 +416,13 @@ export default function FormBlok2() {
                   required={!isSkipLanjut}
                   value={formData.alamat}
                   onChange={handleChange}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                   placeholder="Tulis alamat lengkap..."
+                  readOnly={isKadus}
                 />
               </div>
 
@@ -407,7 +435,7 @@ export default function FormBlok2() {
                   onChange={(option) => handleSelectChange('kesesuaian_domisili', option)}
                   styles={customSelectStyles}
                   placeholder="-- Pilih Kesesuaian --"
-                  isDisabled={isSkipLanjut} // Fitur bawaan react-select untuk mendisable input
+                  isDisabled={isSkipLanjut || isKadus} // Fitur bawaan react-select untuk mendisable input
                   isClearable // Bisa dihapus kembali pilihannya
                 />
               </div>
@@ -433,14 +461,23 @@ export default function FormBlok2() {
                 
                 {/* Area Peta */}
                 <div className="w-full h-64 bg-slate-200 rounded-xl overflow-hidden border border-slate-200 relative z-0 mb-3">
-                  <MapContainer center={mapPosition} zoom={16} scrollWheelZoom={true} className="h-full w-full">
+                  <MapContainer 
+                    center={mapPosition} 
+                    zoom={16} 
+                    scrollWheelZoom={true} 
+                    className="h-full w-full"
+                    dragging={isKadus}       // Tidak bisa digeser
+                    zoomControl={isKadus}    // Hilangkan tombol zoom
+                    scrollWheelZoom={isKadus} // Tidak bisa zoom dengan scroll mouse
+                    doubleClickZoom={isKadus}
+                  >
                     <TileLayer
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
                     <MapUpdater center={mapPosition} />
                     <Marker
-                      draggable={!isSkipLanjut}
+                      draggable={!isSkipLanjut || isKadus}
                       eventHandlers={markerEventHandlers}
                       position={formData.latitude && formData.longitude ? [parseFloat(formData.latitude), parseFloat(formData.longitude)] : mapPosition}
                       ref={markerRef}
@@ -456,7 +493,11 @@ export default function FormBlok2() {
                     readOnly
                     placeholder="Latitude"
                     value={formData.latitude}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none cursor-not-allowed"
+                    className={`w-full border p-3.5 rounded-xl transition focus:outline-none cursor-not-allowed
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-slate-50 border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                   />
                   <input
                     type="text"
@@ -464,7 +505,11 @@ export default function FormBlok2() {
                     readOnly
                     placeholder="Longitude"
                     value={formData.longitude}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none cursor-not-allowed"
+                    className={`w-full border p-3.5 rounded-xl transition focus:outline-none cursor-not-allowed
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-slate-50 border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                   />
                 </div>
               </div>
@@ -478,8 +523,13 @@ export default function FormBlok2() {
                   required={!isSkipLanjut}
                   value={formData.nomor_hp}
                   onChange={handleChange}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                   placeholder="Contoh: 08123456789"
+                  readOnly={isKadus}
                 />
               </div>
 

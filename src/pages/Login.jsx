@@ -28,8 +28,12 @@ export default function Login() {
       }
 
       localStorage.setItem('auth_user', JSON.stringify(data.user));
-      
-      navigate('/');
+
+      if (data.user.role == 'KEPALA DUSUN') {
+        navigate('/kadus');
+      } else {
+        navigate('/'); // Ke halaman Home petugas RT biasa
+      }
     } catch (err) {
       setError(err.message);
     } finally {

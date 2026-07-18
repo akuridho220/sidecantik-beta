@@ -9,6 +9,9 @@ import FormulirBlok1 from './pages/FormulirBlok1';
 import FormulirBlok2 from './pages/FormulirBlok2';
 import FormulirBlok3 from './pages/FormulirBlok3';
 import FormulirBlok4 from './pages/FormulirBlok4';
+import ApprovalKadus from './pages/Approval';
+import HomeKadus from './pages/HomeKadus';
+import ListSLS from './pages/ListSLS';
 
 function App() {
   return (
@@ -26,6 +29,9 @@ function App() {
             <Route path='/form/blok3/detail-keluarga' element={<DetailKeluarga />} />
             <Route path='/form/blok3' element={<FormulirBlok3 />} />
             <Route path='/form/blok4' element={<FormulirBlok4 />} />
+            <Route path='/kadus' element={<HomeKadus />} />
+            <Route path='/list-sls' element={<ListSLS />} /> 
+            <Route path='/kadus/approval' element={<ApprovalKadus />} />
           </Route>
         </Routes>
       </div>

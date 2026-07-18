@@ -17,6 +17,7 @@ export default function ListKeluarga() {
   const navigate = useNavigate();
   const [keluargaData, setKeluargaData] = useState([]);
   const [isFabOpen, setIsFabOpen] = useState(false);
+  const [userData, setUserData] = useState(null);
   
   // State untuk Pencarian dan Accordion
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,6 +31,8 @@ export default function ListKeluarga() {
   };
 
   useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('auth_user'));
+    setUserData(storedUser);
     loadLocalData();
   }, []);
 
@@ -63,11 +66,15 @@ export default function ListKeluarga() {
       <div className="flex flex-col gap-3">
         {/* Tombol Kembali ke Home */}
         <Link 
-          to="/" 
+          to={userData && userData.role === 'KETUA RT' ? '/' : '/list-sls'} 
           className="flex items-center gap-2 text-gray-500 hover:text-teal-600 transition w-fit"
         >
           <ArrowLeft size={20} />
-          <span className="font-medium">Kembali ke Home</span>
+          {(userData && userData.role === 'KETUA RT') ? (
+            <span className="font-medium">Kembali ke Home</span>
+          ):(
+            <span className="font-medium">Kembali</span>
+          )}
         </Link>
 
         <div>
@@ -88,10 +95,6 @@ export default function ListKeluarga() {
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition shadow-sm text-gray-700"
           />
         </div>
-        {/* <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition shadow-sm whitespace-nowrap">
-          <Filter size={18} />
-          <span className="hidden sm:inline font-medium">Filter</span>
-        </button> */}
       </div>
 
       {/* Daftar Data (List View Modern + Accordion) */}
@@ -111,7 +114,7 @@ export default function ListKeluarga() {
               const isExpanded = expandedRow === (item.id_keluarga || item.id);
               
               // Logika Warna Status (Kuning = Open, Oranye = Draft, Biru = Submitted)
-              let statusBg = "bg-yellow-50/60"; 
+              let statusBg = "bg-grey-50/60"; 
               let statusBadge = "bg-yellow-100 text-yellow-600";
               
               if (item.status === 'submitted') {
@@ -121,8 +124,14 @@ export default function ListKeluarga() {
                 statusBg = "bg-orange-200/60";
                 statusBadge = "bg-orange-100 text-orange-600";
               } else if (item.status === 'selesai'){
-                statusBg = "bg-emerald-200/60";
-                statusBadge = "bg-emerald-100 text-emerald-600";
+                statusBg = "bg-yellow-200/60";
+                statusBadge = "bg-yellow-100 text-yellow-600";
+              } else if (item.status === 'approved'){
+                statusBg = "bg-green-200/60";
+                statusBadge = "bg-green-100 text-green-600";
+              } else if (item.status === 'rejected'){
+                statusBg = "bg-red-200/60";
+                statusBadge = "bg-red-100 text-red-600";
               }
 
               return (
@@ -183,15 +192,18 @@ export default function ListKeluarga() {
 
                           {/* Tombol Arahkan ke Halaman Detail */}
                           <div className="mt-3">
-                            {/* <Link 
-                              to={`/detail-keluarga?id=${item.id_keluarga || item.id}`}
-                              className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"
-                            >
-                              Detail Keluarga
-                            </Link> */}
                             {
                               (item.status && item.status.toUpperCase() === 'SUBMITTED') ? (
-                                <div></div>
+                                (userData && userData.role.toUpperCase() === 'KEPALA DUSUN') ? (
+                                  <Link 
+                                  to={`/form/blok1?id_keluarga=${item.id_keluarga || item.id}`}
+                                  className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"
+                                  >
+                                    Open
+                                  </Link>
+                                ) : (
+                                  <div></div>
+                                )
                               ):(
                                 <Link 
                               to={`/form/blok1?id_keluarga=${item.id_keluarga || item.id}`}
@@ -219,44 +231,6 @@ export default function ListKeluarga() {
           )}
         </div>
       </div>
-
-      {/* ========================================= */}
-      {/* FLOATING ACTION BUTTON (FAB) MENU         */}
-      {/* ========================================= */}
-      {/* <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        <div className={`flex flex-col items-end gap-3 transition-all duration-300 origin-bottom ${
-            isFabOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-10 pointer-events-none'
-          }`}>
-          <button 
-            onClick={() => { setIsFabOpen(false); handleSync(); }} 
-            className="flex items-center gap-2 bg-teal-600 text-white p-4 rounded-full shadow-lg border border-gray-100 hover:bg-gray-50 transition"
-          >
-            <RefreshCw size={28} />
-            <span className="font-semibold pr-1">Sync Server</span>
-          </button>
-
-          <Link 
-            to="/form/blok1"
-            onClick={() => setIsFabOpen(false)}
-            className="flex items-center gap-2 bg-blue-600 text-white p-4 rounded-full shadow-lg border border-gray-100 hover:bg-gray-50 transition"
-          >
-            <UserPlus size={28} />
-            <span className="font-semibold pr-1">Tambah Keluarga</span>
-          </Link>
-        </div>
-
-        <button
-          onClick={() => setIsFabOpen(!isFabOpen)}
-          className={`text-white p-4 rounded-full shadow-[0_8px_20px_rgba(45,212,191,0.4)] transition-all duration-300 hover:scale-110 focus:outline-none ${
-            isFabOpen 
-              ? 'bg-red-400 rotate-90 shadow-red-200' 
-              : 'bg-gradient-to-r from-blue-400 to-teal-400 rotate-0'
-          }`}
-        >
-          {isFabOpen ? <X size={28} /> : <Plus size={28} />}
-        </button>
-      </div> */}
-
     </div>
   );
 }

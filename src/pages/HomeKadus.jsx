@@ -139,11 +139,11 @@ export default function Home() {
           semuaSLS = [...semuaSLS, ...data];
         }
         // 1. Tarik Data Keluarga
-        const resKeluargaPull = await fetch(`http://localhost:3001/api/keluarga/sls/${id_sls}`);
+        const resKeluargaPull = await fetch(`http://localhost:3001/api/keluarga/submitted/sls/${id_sls}`);
         if (resKeluargaPull.ok) {
           const data = await resKeluargaPull.json();
           // Beri tanda bahwa data dari server ini sudah tersinkronisasi
-          const dataSynced = data.map(item => ({ ...item, synced: true, status: item.status || 'open' }));
+          const dataSynced = data.map(item => ({ ...item, synced: true, status: item.status || 'submitted' }));
           semuaKeluargaServer = [...semuaKeluargaServer, ...dataSynced];
           
           // 2. Tarik Data Penduduk untuk setiap keluarga yang ditarik

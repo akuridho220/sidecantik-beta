@@ -34,11 +34,15 @@ export default function DetailKeluarga() {
 
   const [keluargaInfo, setKeluargaInfo] = useState(null);
   const [anggotaKeluarga, setAnggotaKeluarga] = useState([]);
-  
+
+  const [userData, setUserData] = useState(null);
+
   // State untuk melacak baris mana yang accordion-nya sedang terbuka
   const [expandedRow, setExpandedRow] = useState(null);
 
   useEffect(() => {
+    const dataUser = JSON.parse(localStorage.getItem('auth_user')) || [];
+    setUserData(dataUser);
     if (idKeluarga) {
       const dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
       const keluargaSaatIni = dataKeluargaLokal.find(k => k.id_keluarga === idKeluarga);
@@ -110,13 +114,17 @@ export default function DetailKeluarga() {
         </div>
 
         {/* Tombol Tambah Anggota */}
-        <button
-          onClick={() => navigate(`/form/blok3/?id_keluarga=${idKeluarga}`)}
-          className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center space-x-2 mb-6 shadow-sm"
-        >
-          <UserPlus className="w-5 h-5" />
-          <span>Tambah Anggota Baru</span>
-        </button>
+        {(userData && userData.role === 'KETUA RT') ? (
+          <button
+            onClick={() => navigate(`/form/blok3/?id_keluarga=${idKeluarga}`)}
+            className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center space-x-2 mb-6 shadow-sm"
+            >
+            <UserPlus className="w-5 h-5" />
+            <span>Tambah Anggota Baru</span>
+          </button>
+          ):(
+            <div></div>
+          )}
 
         {/* Daftar Anggota Keluarga (List View dengan Accordion) */}
         <div className="space-y-3">
@@ -205,33 +213,35 @@ export default function DetailKeluarga() {
                     </div>
 
                     {/* Tombol Aksi di dalam Accordion */}
-                    <div className="flex gap-3 border-t border-slate-200 pt-4">
-                      {cekKelengkapanData(anggota) ? (
+                    {( userData.role === 'KETUA RT' &&
+                      <div className="flex gap-3 border-t border-slate-200 pt-4">
+                        {cekKelengkapanData(anggota) ? (
+                          <Link 
+                          to={`/form/blok3?id_keluarga=${idKeluarga}&id_anggota_keluarga=${anggota.id_anggota_keluarga}`}
+                          className="flex-1 flex items-center justify-center gap-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
+                          >
+                            <Edit3 size={16} /> Edit Data
+                          </Link>
+                        ) : (
+                          <Link 
+                          to={`/form/blok3?id_keluarga=${idKeluarga}&id_anggota_keluarga=${anggota.id_anggota_keluarga}`}
+                          className="flex-1 flex items-center justify-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
+                          >
+                            <Edit3 size={16} /> Lengkapi Data
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                    {( userData.role === 'KEPALA DUSUN' && 
+                      <div className="flex gap-3 border-t border-slate-200 pt-4">
                         <Link 
-                        to={`/form/blok3?id_keluarga=${idKeluarga}&id_anggota_keluarga=${anggota.id_anggota_keluarga}`}
-                        className="flex-1 flex items-center justify-center gap-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
-                        >
-                          <Edit3 size={16} /> Edit Data
+                          to={`/form/blok3?id_keluarga=${idKeluarga}&id_anggota_keluarga=${anggota.id_anggota_keluarga}`}
+                          className="flex-1 flex items-center justify-center gap-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
+                          >
+                            <Edit3 size={16} /> Open
                         </Link>
-                      ) : (
-                        <Link 
-                        to={`/form/blok3?id_keluarga=${idKeluarga}&id_anggota_keluarga=${anggota.id_anggota_keluarga}`}
-                        className="flex-1 flex items-center justify-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
-                        >
-                          <Edit3 size={16} /> Lengkapi Data
-                        </Link>
-                      )}
-                      
-                      {/* Proteksi: Kepala Keluarga tidak boleh dihapus dari sini */}
-                      {/* {anggota.hubungan_keluarga !== 'KEPALA KELUARGA' && (
-                        <button 
-                          onClick={() => handleDeleteAnggota(anggota.id_anggota_keluarga)}
-                          className="flex-none flex items-center justify-center gap-2 bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2.5 rounded-xl font-bold transition-all text-sm"
-                        >
-                          <Trash2 size={16} /> Hapus
-                        </button>
-                      )} */}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

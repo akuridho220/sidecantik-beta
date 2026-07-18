@@ -140,6 +140,7 @@ export default function FormAnggotaKeluarga() {
 
   const [showExitModal, setShowExitModal] = useState(false);
   const [originalData, setOriginalData] = useState(null); // Menyimpan data asli agar atribut lain tidak hilang
+  const [isKadus, setIsKadus] = useState(false);
   
   const [formData, setFormData] = useState({
     no_urut_anggota: '',
@@ -159,6 +160,11 @@ export default function FormAnggotaKeluarga() {
   });
 
   useEffect(() => {
+    const dataUser = JSON.parse(localStorage.getItem('auth_user')) || [];
+    if(dataUser.role === 'KEPALA DUSUN'){
+      setIsKadus(true);
+    }
+
     if (!idKeluarga) {
       alert("ID Keluarga hilang!");
       navigate('/list-keluarga');
@@ -304,8 +310,13 @@ export default function FormAnggotaKeluarga() {
                   required
                   value={formData.no_urut_anggota}
                   onChange={handleChange}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                  className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                   placeholder="Contoh: 1"
+                  readOnly={isKadus}
                 />
               </div>
               <div className="sm:col-span-2">
@@ -316,8 +327,13 @@ export default function FormAnggotaKeluarga() {
                   maxLength="16"
                   value={formData.nik}
                   onChange={handleChange}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                  className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                   placeholder="16 Digit NIK"
+                  readOnly={isKadus}
                 />
               </div>
             </div>
@@ -331,8 +347,13 @@ export default function FormAnggotaKeluarga() {
                 required
                 value={formData.nama}
                 onChange={handleChange}
-                className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                 placeholder="Nama sesuai KTP/KK"
+                readOnly={isKadus}
               />
             </div>
 
@@ -345,6 +366,7 @@ export default function FormAnggotaKeluarga() {
                 onChange={(option) => handleSelectChange('status_hubungan_keluarga', option)}
                 styles={customSelectStyles}
                 placeholder="-- Pilih Hubungan --"
+                isDisabled={isKadus}
               />
               {formData.status_hubungan_keluarga === 'Lainnya' && (
                 <input
@@ -369,6 +391,7 @@ export default function FormAnggotaKeluarga() {
                 styles={customSelectStyles}
                 placeholder="-- Pilih Status Penduduk --"
                 isSearchable={false}
+                isDisabled={isKadus}
               />
             </div>
 
@@ -382,8 +405,13 @@ export default function FormAnggotaKeluarga() {
                   required
                   value={formData.tempat_lahir}
                   onChange={handleChange}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                  className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                   placeholder="Tempat Lahir"
+                  readOnly={isKadus}
                 />
                 <input
                   type="date"
@@ -391,7 +419,12 @@ export default function FormAnggotaKeluarga() {
                   required
                   value={formData.tanggal_lahir}
                   onChange={handleChange}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition text-slate-700"
+                  className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
+                  readOnly={isKadus}
                 />
               </div>
             </div>
@@ -406,6 +439,7 @@ export default function FormAnggotaKeluarga() {
                 styles={customSelectStyles}
                 placeholder="-- Pilih Jenis Kelamin --"
                 isSearchable={false}
+                isDisabled={isKadus}
               />
             </div>
 
@@ -419,18 +453,8 @@ export default function FormAnggotaKeluarga() {
                 styles={customSelectStyles}
                 placeholder="-- Pilih Agama --"
                 isSearchable={false}
+                isDisabled={isKadus}
               />
-              {formData.agama === '7' && (
-                <input
-                  type="text"
-                  name="agama_lainnya"
-                  required
-                  value={formData.agama_lainnya}
-                  onChange={handleChange}
-                  className="w-full bg-amber-50 border border-amber-200 rounded-xl p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
-                  placeholder="Sebutkan kepercayaan..."
-                />
-              )}
             </div>
 
             {/* 9. Status Perkawinan */}
@@ -443,6 +467,7 @@ export default function FormAnggotaKeluarga() {
                 styles={customSelectStyles}
                 placeholder="-- Pilih Status Perkawinan --"
                 isSearchable={false}
+                isDisabled={isKadus}
               />
             </div>
 
@@ -455,6 +480,7 @@ export default function FormAnggotaKeluarga() {
                 onChange={(option) => handleSelectChange('pendidikan_tertinggi', option)}
                 styles={customSelectStyles}
                 placeholder="-- Pilih Pendidikan --"
+                isDisabled={isKadus}
               />
             </div>
 
@@ -468,6 +494,7 @@ export default function FormAnggotaKeluarga() {
                 styles={customSelectStyles}
                 placeholder="-- Pilih Pekerjaan --"
                 isSearchable={false}
+                isDisabled={isKadus}
               />
             </div>
 

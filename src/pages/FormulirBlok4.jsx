@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ClipboardList, ArrowLeft, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ClipboardList, ArrowLeft, CheckCircle, AlertTriangle, X, Check, CheckCircle2 } from 'lucide-react';
 
 export default function FormBlokCatatan() {
   const navigate = useNavigate();
@@ -10,8 +10,16 @@ export default function FormBlokCatatan() {
   const [showExitModal, setShowExitModal] = useState(false);
   const [catatan, setCatatan] = useState('');
   const [catatanAsli, setCatatanAsli] = useState(''); // Untuk mendeteksi perubahan
+  const [userData, setUserData] = useState(false);
+
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [catatanRevisi, setCatatanRevisi] = useState('');
 
   useEffect(() => {
+    const dataUser = JSON.parse(localStorage.getItem('auth_user')) || [];
+    setUserData(dataUser);
+
     if (!idKeluarga) {
       alert("ID Keluarga tidak ditemukan!");
       navigate('/list-keluarga');
@@ -58,6 +66,40 @@ export default function FormBlokCatatan() {
       navigate(`/form/blok3/detail-keluarga?id_keluarga=${idKeluarga}`);
     }
   };
+
+  const handleApprove = (e) => {
+    let dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
+    const indexKeluarga = dataKeluargaLokal.findIndex(k => k.id_keluarga === idKeluarga);
+
+    if (indexKeluarga !== -1) {
+      dataKeluargaLokal[indexKeluarga] = {
+        ...dataKeluargaLokal[indexKeluarga],
+        catatan: catatan,
+        status: 'approved',
+        synced: false
+      };
+      localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
+    }
+
+    navigate('/list-keluarga');
+  }
+
+  const handleReject = (e) => {
+    let dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
+    const indexKeluarga = dataKeluargaLokal.findIndex(k => k.id_keluarga === idKeluarga);
+
+    if (indexKeluarga !== -1) {
+      dataKeluargaLokal[indexKeluarga] = {
+        ...dataKeluargaLokal[indexKeluarga],
+        catatan: catatan,
+        status: 'rejected',
+        synced: false
+      };
+      localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
+    }
+    
+    navigate('/list-keluarga');
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 relative overflow-hidden flex flex-col">
@@ -112,14 +154,40 @@ export default function FormBlokCatatan() {
             <span className="inline">Blok III</span>
           </button>
           
-          <button
-            type="submit"
-            form="form-catatan"
-            className="w-1/2 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2"
-          >
-            <CheckCircle className="w-5 h-5" />
-            <span>Simpan & Selesai</span>
-          </button>
+          {/* Logika Tombol Aksi Dinamis */}
+          {(userData && userData.role === 'KEPALA DUSUN') ? (
+            <div className="flex w-1/2 gap-2">
+        {/* Tombol Reject */}
+            <button
+              type="button"
+              onClick={() => setShowRejectModal(true)}
+              className="w-1/2 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center space-x-1"
+            >
+              {/* <X className="w-5 h-5" /> */}
+              <span className="text-sm">Reject</span>
+            </button>
+
+            {/* Tombol Approve */}
+            <button
+              type="button"
+              onClick={() => setShowApproveModal(true)}
+              className="w-1/2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center space-x-1"
+            >
+              {/* <Check className="w-5 h-5" /> */}
+              <span className="text-sm">Approve</span>
+            </button>
+          </div>
+          ) : (
+            // Tampilan untuk RT: Simpan & Selesai
+            <button
+              type="submit"
+              form="form-catatan"
+              className="w-1/2 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2"
+            >
+              <CheckCircle className="w-5 h-5" />
+              <span>Simpan & Selesai</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -149,6 +217,103 @@ export default function FormBlokCatatan() {
                   Ya, Buang
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ================= MODAL APPROVE ================= */}
+      {showApproveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mb-4">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800">Konfirmasi Setuju</h3>
+              <p className="text-sm text-slate-500 mt-2">
+                Apakah Anda yakin semua isian data dari Blok I hingga Blok IV sudah benar dan sesuai?
+              </p>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setShowApproveModal(false)}
+                className="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl transition text-sm"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowApproveModal(false);
+                  handleApprove(); // Panggil fungsi utama kirim data ke backend
+                }}
+                className="w-1/2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl shadow-md transition text-sm"
+              >
+                Ya, Approve
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL REJECT ================= */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl transform transition-all scale-100">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 flex-shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">Tolak & Minta Revisi</h3>
+                <p className="text-xs text-slate-500">Berikan catatan perbaikan data untuk RT</p>
+              </div>
+            </div>
+
+            {/* Input Alasan/Catatan Revisi */}
+            <div className="mt-2">
+              <label className="text-xs font-semibold text-slate-600 block mb-1">
+                Catatan Revisi (Wajib)
+              </label>
+              <textarea
+                rows="3"
+                className="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-500 text-sm placeholder:text-slate-400 transition"
+                placeholder="Contoh: NIK Kepala Keluarga di Blok II kurang 1 digit atau salah ketik..."
+                value={catatanRevisi}
+                onChange={(e) => setCatatanRevisi(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex gap-3 mt-5">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setCatatanRevisi('');
+                }}
+                className="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl transition text-sm"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={!catatanRevisi.trim()}
+                onClick={() => {
+                  setShowRejectModal(false);
+                  handleReject(catatanRevisi);
+                  setCatatanRevisi('');
+                }}
+                className={`w-1/2 font-bold py-3 rounded-xl shadow-md transition text-sm text-white ${
+                  catatanRevisi.trim()
+                    ? 'bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 cursor-pointer shadow-md'
+                    : 'bg-slate-300 cursor-not-allowed shadow-none'
+                }`}
+              >
+                Kirim Tolak
+              </button>
             </div>
           </div>
         </div>

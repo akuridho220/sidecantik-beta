@@ -11,10 +11,17 @@ export default function FormIdentitasWilayah() {
     nama_rt: ''
   });
 
+  const [isKadus, setIsKadus] = useState(false);
+
   const [searchParams] = useSearchParams();
   const idKeluarga = searchParams.get('id_keluarga');
 
   useEffect(() => {
+    const dataUser = JSON.parse(localStorage.getItem('auth_user')) || [];
+    if(dataUser.role === 'KEPALA DUSUN'){
+      setIsKadus(true);
+    }
+
     if (idKeluarga) {
       const dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
       
@@ -92,6 +99,7 @@ export default function FormIdentitasWilayah() {
                 onChange={handleChange}
                 className="w-full bg-slate-50/50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
                 placeholder="Contoh: Desa Sukamaju"
+                readOnly={isKadus}
               />
             </div>
 
@@ -106,6 +114,7 @@ export default function FormIdentitasWilayah() {
                 onChange={handleChange}
                 className="w-full bg-slate-50/50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
                 placeholder="Contoh: Dusun Mekarsari"
+                readOnly={isKadus}
               />
             </div>
 
@@ -120,6 +129,7 @@ export default function FormIdentitasWilayah() {
                 onChange={handleChange}
                 className="w-full bg-slate-50/50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
                 placeholder="Contoh: RT 01"
+                readOnly={isKadus}
               />
             </div>
           </form>
