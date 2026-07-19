@@ -309,7 +309,7 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {(userData && userData.role === 'KETUA RT') ? (
             <Link 
-              to="/list-keluarga"
+              to={`/list-keluarga?id_sls=${userData.daftar_sls}`}
               className="flex items-center p-5 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
             >
               <div className="p-4 bg-gradient-to-br from-teal-400 to-teal-500 text-white rounded-xl shadow-sm group-hover:scale-105 transition-transform">

@@ -295,7 +295,7 @@ export default function FormBlok2() {
   };
 
 
-  const isSkipLanjut = ['Pindah Keluar SLS', 'Tidak Ditemukan', 'Tidak Tahu'].includes(formData.status_keberadaan);
+  const isSkipLanjut = ['PINDAH KELUAR SLS', 'TIDAK DITEMUKAN', 'TIDAK TAHU'].includes(formData.status_keberadaan);
 
   const selectedStatus = opsiStatusKeberadaan.find(opt => opt.value === formData.status_keberadaan) || null;
   const selectedKesesuaian = opsiKesesuaianDomisili.find(opt => opt.value === formData.kesesuaian_domisili) || null;

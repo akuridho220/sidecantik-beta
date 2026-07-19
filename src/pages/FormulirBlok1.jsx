@@ -12,6 +12,7 @@ export default function FormIdentitasWilayah() {
   });
 
   const [isKadus, setIsKadus] = useState(false);
+  const [sls, setSls] = useState('');
 
   const [searchParams] = useSearchParams();
   const idKeluarga = searchParams.get('id_keluarga');
@@ -33,6 +34,7 @@ export default function FormIdentitasWilayah() {
           nama_dusun: keluargaSaatIni.nama_dusun || '',
           nama_rt: keluargaSaatIni.nama_sls || '' 
         });
+        setSls(keluargaSaatIni.id_sls_administrasi);
       }
     }
   }, [idKeluarga]);
@@ -193,7 +195,7 @@ export default function FormIdentitasWilayah() {
                   Batal
                 </button>
                 <button
-                  onClick={() => navigate('/list-keluarga')}
+                  onClick={() => navigate(`/list-keluarga?id_sls=${sls}`)}
                   className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition duration-200 shadow-md shadow-red-500/30"
                 >
                   Ya, Keluar

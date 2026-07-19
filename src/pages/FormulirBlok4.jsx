@@ -17,6 +17,8 @@ export default function FormBlokCatatan() {
   const [catatanRevisi, setCatatanRevisi] = useState('');
   const [isSkip, setIsSkip] = useState(false);
   const [isKadus, setIsKadus] = useState(false);
+  const [sls, setSls] = useState('');
+
 
   useEffect(() => {
     const dataUser = JSON.parse(localStorage.getItem('auth_user')) || [];
@@ -34,6 +36,7 @@ export default function FormBlokCatatan() {
     // Mengambil data catatan dari data_keluarga (jika sudah pernah diisi)
     const dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
     const keluargaSaatIni = dataKeluargaLokal.find(k => k.id_keluarga === idKeluarga);
+    setSls(keluargaSaatIni.id_sls_administrasi);
 
     if (keluargaSaatIni && keluargaSaatIni.catatan) {
       setCatatan(keluargaSaatIni.catatan);
@@ -41,8 +44,8 @@ export default function FormBlokCatatan() {
     }
 
     if(keluargaSaatIni && keluargaSaatIni.status_keberadaan){
-      const isSkipLanjut = ['PINDAH KELUAR SLS', 'TIDAK DITEMUKAN', 'TIDAK TAHU'].includes(keluargaSaatIni.status_keberadaan);
-      setIsSkip(true);
+      const isSkipLanjut = ['PINDAH KELUAR SLS', 'TIDAK DITEMUKAN', 'TIDAK TAHU'].includes(keluargaSaatIni.status_keberadaan.toUpperCase());
+      setIsSkip(isSkipLanjut);
     }
 
 
@@ -66,7 +69,7 @@ export default function FormBlokCatatan() {
     }
 
     // Selesai! Arahkan petugas kembali ke daftar keluarga
-    navigate('/list-keluarga');
+    navigate(`/list-keluarga?id_sls=${sls}`);
   };
 
   const handleBackClick = () => {
@@ -94,7 +97,7 @@ export default function FormBlokCatatan() {
       localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
     }
 
-    navigate('/list-keluarga');
+    navigate(`/list-keluarga?id_sls=${sls}`);
   }
 
   const handleReject = (e) => {
@@ -111,7 +114,7 @@ export default function FormBlokCatatan() {
       localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
     }
     
-    navigate('/list-keluarga');
+    navigate(`/list-keluarga?id_sls=${sls}`);
   }
 
   return (
