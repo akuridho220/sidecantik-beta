@@ -257,8 +257,10 @@ export default function FormAnggotaKeluarga() {
     if (Array.isArray(dataKeluargaLokal)) {
       const indexKeluarga = dataKeluargaLokal.findIndex(k => k.id_keluarga === idKeluarga);
       if (indexKeluarga !== -1) {
-        dataKeluargaLokal[indexKeluarga].synced = false;
-        dataKeluargaLokal[indexKeluarga].status = 'draft';
+        if(!isKadus){
+          dataKeluargaLokal[indexKeluarga].synced = false;
+          dataKeluargaLokal[indexKeluarga].status = 'draft';
+        }
         localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
       }
     }

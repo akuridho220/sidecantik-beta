@@ -15,9 +15,14 @@ export default function FormBlokCatatan() {
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [catatanRevisi, setCatatanRevisi] = useState('');
+  const [isSkip, setIsSkip] = useState(false);
+  const [isKadus, setIsKadus] = useState(false);
 
   useEffect(() => {
     const dataUser = JSON.parse(localStorage.getItem('auth_user')) || [];
+    if(dataUser.role === 'KEPALA DUSUN'){
+      setIsKadus(true);
+    }
     setUserData(dataUser);
 
     if (!idKeluarga) {
@@ -34,6 +39,13 @@ export default function FormBlokCatatan() {
       setCatatan(keluargaSaatIni.catatan);
       setCatatanAsli(keluargaSaatIni.catatan);
     }
+
+    if(keluargaSaatIni && keluargaSaatIni.status_keberadaan){
+      const isSkipLanjut = ['PINDAH KELUAR SLS', 'TIDAK DITEMUKAN', 'TIDAK TAHU'].includes(keluargaSaatIni.status_keberadaan);
+      setIsSkip(true);
+    }
+
+
   }, [idKeluarga, navigate]);
 
   const handleSubmit = (e) => {
@@ -61,8 +73,9 @@ export default function FormBlokCatatan() {
     // Jika ada ketikan baru yang belum disimpan, munculkan peringatan
     if (catatan !== catatanAsli) {
       setShowExitModal(true);
+    } else if (isSkip){
+      navigate(`/form/blok2/?id_keluarga=${idKeluarga}`);
     } else {
-      // Kembali ke Blok 3 (Detail Keluarga)
       navigate(`/form/blok3/detail-keluarga?id_keluarga=${idKeluarga}`);
     }
   };
@@ -136,6 +149,7 @@ export default function FormBlokCatatan() {
                 onChange={(e) => setCatatan(e.target.value)}
                 className="w-full bg-white border border-slate-200 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200 text-slate-700 shadow-inner"
                 placeholder=""
+                readOnly={isKadus}
               ></textarea>
             </div>
           </form>
@@ -151,7 +165,11 @@ export default function FormBlokCatatan() {
             className="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3.5 rounded-xl transition flex items-center justify-center space-x-2 border border-slate-200"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="inline">Blok III</span>
+            {isSkip ? (
+              <span className="inline">Blok II</span>
+            ):(
+              <span className="inline">Blok III</span>
+            )}
           </button>
           
           {/* Logika Tombol Aksi Dinamis */}
@@ -211,7 +229,7 @@ export default function FormBlokCatatan() {
                   Teruskan Mengetik
                 </button>
                 <button
-                  onClick={() => navigate(`/form-blok-3?id_keluarga=${idKeluarga}`)}
+                  onClick={() => navigate(`/form/${isSkip ? 'blok2' : 'blok3/detail-keluarga'}?id_keluarga=${idKeluarga}`)}
                   className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition shadow-md"
                 >
                   Ya, Buang

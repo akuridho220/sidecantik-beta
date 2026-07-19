@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Search, 
   Filter, 
@@ -25,6 +25,9 @@ export default function ListKeluarga() {
 
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
+  const [searchParams] = useSearchParams();
+  const idSls = searchParams.get('id_sls');
+
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2000);
@@ -37,8 +40,11 @@ export default function ListKeluarga() {
   }, []);
 
   const loadLocalData = () => {
-    const data = JSON.parse(localStorage.getItem('data_keluarga')) || [];
-    setKeluargaData(data);
+    if(idSls){
+      const data = JSON.parse(localStorage.getItem('data_keluarga')) || [];
+      const slsSaatIni = data.filter(k => k.id_sls_administrasi === idSls);
+      setKeluargaData(slsSaatIni);
+    }
   };
 
   // Logika Pencarian (Filter Data secara Real-time)
@@ -192,34 +198,32 @@ export default function ListKeluarga() {
 
                           {/* Tombol Arahkan ke Halaman Detail */}
                           <div className="mt-3">
-                            {
-                              (item.status && item.status.toUpperCase() === 'SUBMITTED') ? (
-                                (userData && userData.role.toUpperCase() === 'KEPALA DUSUN') ? (
-                                  <Link 
-                                  to={`/form/blok1?id_keluarga=${item.id_keluarga || item.id}`}
-                                  className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"
-                                  >
-                                    Open
-                                  </Link>
-                                ) : (
-                                  <div></div>
-                                )
-                              ):(
-                                <Link 
-                              to={`/form/blok1?id_keluarga=${item.id_keluarga || item.id}`}
-                              className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"
+                            {(userData.role.toUpperCase() === 'KEPALA DUSUN') && (
+                              <Link 
+                                to={`/form/blok1?id_keluarga=${item.id_keluarga || item.id}`}
+                                className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"
                               >
                                 Open
                               </Link>
+                            )}
+                            {(userData.role.toUpperCase() === 'KETUA RT') && (
+                              (item.status && item.status.toUpperCase() === 'OPEN' || item.status.toUpperCase() === 'DRAFT') ? (
+                                <Link 
+                                  to={`/form/blok1?id_keluarga=${item.id_keluarga || item.id}`}
+                                  className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"
+                                >
+                                  Open
+                                </Link>
+                              ) : (
+                                <div></div>
                               )
-                            }
+                            )}
                           </div>
 
                         </div>
                       </div>
                     </div>
                   )}
-
                 </div>
               );
             })

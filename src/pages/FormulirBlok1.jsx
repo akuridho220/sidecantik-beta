@@ -47,8 +47,10 @@ export default function FormIdentitasWilayah() {
     if (Array.isArray(dataKeluargaLokal)) {
       const indexKeluarga = dataKeluargaLokal.findIndex(k => k.id_keluarga === idKeluarga);
       if (indexKeluarga !== -1) {
-        dataKeluargaLokal[indexKeluarga].synced = false;
-        dataKeluargaLokal[indexKeluarga].status = 'draft';
+        if(!isKadus){
+          dataKeluargaLokal[indexKeluarga].synced = false;
+          dataKeluargaLokal[indexKeluarga].status = 'draft';
+        }
         localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
       }
     }
@@ -97,7 +99,11 @@ export default function FormIdentitasWilayah() {
                 required
                 value={formData.nama_desa}
                 onChange={handleChange}
-                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
+                className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                 placeholder="Contoh: Desa Sukamaju"
                 readOnly={isKadus}
               />
@@ -112,7 +118,11 @@ export default function FormIdentitasWilayah() {
                 required
                 value={formData.nama_dusun}
                 onChange={handleChange}
-                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
+                className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                 placeholder="Contoh: Dusun Mekarsari"
                 readOnly={isKadus}
               />
@@ -127,7 +137,11 @@ export default function FormIdentitasWilayah() {
                 required
                 value={formData.nama_rt}
                 onChange={handleChange}
-                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl p-3.5 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
+                className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
+                    ${isKadus 
+                      ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed shadow-inner" 
+                      : "bg-white border-slate-200 text-gray-900 focus:ring-2 focus:ring-teal-500"
+                    }`}
                 placeholder="Contoh: RT 01"
                 readOnly={isKadus}
               />

@@ -87,7 +87,7 @@ export default function Home() {
       const dataPendudukLokal = JSON.parse(localStorage.getItem('data_penduduk')) || [];
 
       // Filter data yang siap di-upload
-      const keluargaSiapSync = dataKeluargaLokal.filter(k => k.status === 'selesai' && k.synced === false);
+      const keluargaSiapSync = dataKeluargaLokal.filter(k => k.synced === false);
       
       if (keluargaSiapSync.length > 0) {
         // Gabungkan dengan draf Blok 2

@@ -53,8 +53,8 @@ export default function DetailKeluarga() {
       
       
       anggotaTerkait.sort((a, b) => {
-        if (a.hubungan_keluarga === 'KEPALA KELUARGA') return -1;
-        if (b.hubungan_keluarga === 'KEPALA KELUARGA') return 1;
+        if (a.status_hubungan_keluarga === 'KEPALA KELUARGA') return -1;
+        if (b.status_hubungan_keluarga === 'KEPALA KELUARGA') return 1;
         return 0;
       });
 

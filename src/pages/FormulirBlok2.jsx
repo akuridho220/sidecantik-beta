@@ -18,11 +18,11 @@ L.Icon.Default.mergeOptions({
 });
 
 const opsiStatusKeberadaan = [
-  { value: 'Ditemukan', label: '1. Ditemukan' },
-  { value: 'Baru', label: '2. Baru' },
-  { value: 'Pindah Keluar SLS', label: '3. Pindah keluar SLS' },
-  { value: 'Tidak Ditemukan', label: '4. Tidak ditemukan' },
-  { value: 'Tidak Tahu', label: '5. Tidak tahu' }
+  { value: 'DITEMUKAN', label: '1. Ditemukan' },
+  { value: 'BARU', label: '2. Baru' },
+  { value: 'PINDAH KELUAR SLS', label: '3. Pindah keluar SLS' },
+  { value: 'TIDAK DITEMUKAN', label: '4. Tidak ditemukan' },
+  { value: 'TIDAK TAHU', label: '5. Tidak tahu' }
 ];
 
 const opsiKesesuaianDomisili = [
@@ -91,7 +91,7 @@ export default function FormBlok2() {
     kesesuaian_domisili: '',
     latitude: '',
     longitude: '',
-    nomor_hp: ''
+    no_hp: ''
   });
 
   const markerRef = useRef(null);
@@ -127,7 +127,7 @@ export default function FormBlok2() {
             longitude: keluargaSaatIni.longitude || '',
             status_keberadaan: keluargaSaatIni.status_keberadaan || '',
             kesesuaian_domisili: keluargaSaatIni.kesesuaian_domisili || '',
-            nomor_hp: keluargaSaatIni.nomor_hp || keluargaSaatIni.no_hp || '',
+            no_hp: keluargaSaatIni.nomor_hp || keluargaSaatIni.no_hp || '',
             alamat: keluargaSaatIni.alamat || ''
           }));
 
@@ -153,7 +153,7 @@ export default function FormBlok2() {
     const value = selectedOption ? selectedOption.value : '';
     
     if (name === 'status_keberadaan') {
-      const isSkipLanjut = ['Pindah Keluar SLS', 'Tidak Ditemukan', 'Tidak Tahu'].includes(value);
+      const isSkipLanjut = ['PINDAH KELUAR SLS', 'TIDAK DITEMUKAN', 'TIDAK TAHU'].includes(value);
       
       if (isSkipLanjut) {
         setFormData(prev => ({
@@ -164,7 +164,7 @@ export default function FormBlok2() {
           kesesuaian_domisili: '',
           latitude: '',
           longitude: '',
-          nomor_hp: ''
+          no_hp: ''
         }));
       } else {
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -241,15 +241,17 @@ export default function FormBlok2() {
     if (Array.isArray(dataKeluargaLokal)) {
       const indexKeluarga = dataKeluargaLokal.findIndex(k => k.id_keluarga === idKeluarga);
       if (indexKeluarga !== -1) {
-        dataKeluargaLokal[indexKeluarga].synced = false;
-        dataKeluargaLokal[indexKeluarga].status = 'draft';
+        if(!isKadus){
+          dataKeluargaLokal[indexKeluarga].synced = false;
+          dataKeluargaLokal[indexKeluarga].status = 'draft';
+        }
         localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
       }
     }
 
     localStorage.setItem('draft_blok2_keberadaan-keluarga', JSON.stringify(semuaDrafBlok2));
     
-    const statusSkip = ['Pindah Keluar SLS', 'Tidak Ditemukan', 'Tidak Tahu'].includes(formData.status_keberadaan);
+    const statusSkip = ['PINDAH KELUAR SLS', 'TIDAK DITEMUKAN', 'TIDAK TAHU'].includes(formData.status_keberadaan);
     if (statusSkip) {
       let dataPendudukLokal = JSON.parse(localStorage.getItem('data_penduduk')) || [];
       let adaPerubahanPenduduk = false;
@@ -519,9 +521,9 @@ export default function FormBlok2() {
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">7. Nomor HP</label>
                 <input
                   type="tel"
-                  name="nomor_hp"
+                  name="no_hp"
                   required={!isSkipLanjut}
-                  value={formData.nomor_hp}
+                  value={formData.no_hp}
                   onChange={handleChange}
                   className={`w-full border p-3.5 rounded-xl transition focus:outline-none 
                     ${isKadus 
