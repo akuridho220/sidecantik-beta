@@ -98,13 +98,12 @@ export default function FormBlok2() {
 
   useEffect(() => {
     const dataUser = JSON.parse(localStorage.getItem('auth_user')) || [];
-    if(dataUser.role === 'KEPALA DUSUN'){
+    if(dataUser && dataUser.role === 'KEPALA DUSUN'){
       setIsKadus(true);
     }
 
     if (idKeluarga) {
       const semuaDrafBlok2 = JSON.parse(localStorage.getItem('draft_blok2_keberadaan-keluarga')) || [];
-
       const drafTersimpan = semuaDrafBlok2.find(d => d.id_keluarga === idKeluarga);
 
       if (drafTersimpan) {
@@ -140,8 +139,24 @@ export default function FormBlok2() {
   }, [idKeluarga]);
 
   useEffect(() => {
-    if (!formData.latitude && !formData.longitude) {
-      handleGetLocation();
+    const semuaDrafBlok2 = JSON.parse(localStorage.getItem('draft_blok2_keberadaan-keluarga')) || [];
+    const drafTersimpan = semuaDrafBlok2.find(d => d.id_keluarga === idKeluarga);
+
+    const dataKeluargaLokal = JSON.parse(localStorage.getItem('data_keluarga')) || [];
+    const keluargaSaatIni = dataKeluargaLokal.find(k => k.id_keluarga === idKeluarga);
+    
+    // Pengisian awal, gak ada draft dan dari db gak ada isinya => get lokasi
+    if(!drafTersimpan && (!keluargaSaatIni.latitude && !keluargaSaatIni.longitude)){
+      if(!formData.latitude && !formData.longitude){
+        handleGetLocation();
+      } 
+    }
+
+    // Edit aja, draft udah ada, db udah ada => cek ada gak lokasinya. Kalo gada => get lokasi
+    if(drafTersimpan && keluargaSaatIni){
+      if ((!formData.latitude && !formData.longitude) && (!drafTersimpan.latitude && !drafTersimpan.longitude) && (!keluargaSaatIni.latitude && !keluargaSaatIni.longitude)) {
+        handleGetLocation();
+      }
     }
   }, []);
 
@@ -441,7 +456,6 @@ export default function FormBlok2() {
                   isClearable // Bisa dihapus kembali pilihannya
                 />
               </div>
-
               {/* 6. Lokasi (Mengikuti penomoran ganda pada gambar asli) */}
               <div>
                 <div className="flex justify-between items-center mb-2">
@@ -449,7 +463,7 @@ export default function FormBlok2() {
                   <button
                     type="button"
                     onClick={handleGetLocation}
-                    disabled={isLocating || isSkipLanjut}
+                    disabled={isLocating || isSkipLanjut || isKadus}
                     className={`text-xs font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1 transition ${
                       isSkipLanjut 
                         ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
@@ -460,18 +474,18 @@ export default function FormBlok2() {
                     <span>{isLocating ? 'Mencari...' : 'Titik Saya'}</span>
                   </button>
                 </div>
-                
                 {/* Area Peta */}
                 <div className="w-full h-64 bg-slate-200 rounded-xl overflow-hidden border border-slate-200 relative z-0 mb-3">
                   <MapContainer 
+                    key={isKadus ? 'readonly-map' : 'interactive-map'}
                     center={mapPosition} 
                     zoom={16} 
                     scrollWheelZoom={true} 
                     className="h-full w-full"
-                    dragging={isKadus}       // Tidak bisa digeser
-                    zoomControl={isKadus}    // Hilangkan tombol zoom
-                    scrollWheelZoom={isKadus} // Tidak bisa zoom dengan scroll mouse
-                    doubleClickZoom={isKadus}
+                    dragging={!isKadus}       // Tidak bisa digeser
+                    zoomControl={!isKadus}    // Hilangkan tombol zoom
+                    scrollWheelZoom={!isKadus} // Tidak bisa zoom dengan scroll mouse
+                    doubleClickZoom={!isKadus}
                   >
                     <TileLayer
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -479,7 +493,7 @@ export default function FormBlok2() {
                     />
                     <MapUpdater center={mapPosition} />
                     <Marker
-                      draggable={!isSkipLanjut || isKadus}
+                      draggable={!isSkipLanjut && !isKadus}
                       eventHandlers={markerEventHandlers}
                       position={formData.latitude && formData.longitude ? [parseFloat(formData.latitude), parseFloat(formData.longitude)] : mapPosition}
                       ref={markerRef}
@@ -515,7 +529,6 @@ export default function FormBlok2() {
                   />
                 </div>
               </div>
-
               {/* 7. Nomor HP */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">7. Nomor HP</label>

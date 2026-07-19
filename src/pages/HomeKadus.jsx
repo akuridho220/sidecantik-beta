@@ -104,9 +104,6 @@ export default function Home() {
           p.status_dokumen_blok3 === 'draft'
         );
 
-        console.log(payloadKeluarga);
-        console.log(payloadPenduduk);
-
         // Upload Keluarga
         const resKeluarga = await fetch('http://localhost:3001/api/keluarga/sync', {
           method: 'POST',
