@@ -196,6 +196,13 @@ export default function ListKeluarga() {
                             <p className="font-bold text-gray-800 text-base">{item.status.toUpperCase()}</p>
                           </div>
 
+                          { item.status.toUpperCase() === 'REJECTED' && (
+                            <div className="flex flex-col gap-1 text-sm">
+                              <p className="text-gray-500 font-medium">Catatan Reject:</p>
+                              <p className="font-bold text-red-800 text-base">{item.catatan_reject}</p>
+                            </div>
+                          )}
+
                           {/* Tombol Arahkan ke Halaman Detail */}
                           <div className="mt-3">
                             {(userData.role.toUpperCase() === 'KEPALA DUSUN') && (
@@ -207,7 +214,7 @@ export default function ListKeluarga() {
                               </Link>
                             )}
                             {(userData.role.toUpperCase() === 'KETUA RT') && (
-                              (item.status && item.status.toUpperCase() === 'OPEN' || item.status.toUpperCase() === 'DRAFT') ? (
+                              (item.status && item.status.toUpperCase() === 'OPEN' || item.status.toUpperCase() === 'DRAFT' || item.status.toUpperCase() === 'REJECTED') ? (
                                 <Link 
                                   to={`/form/blok1?id_keluarga=${item.id_keluarga || item.id}`}
                                   className="inline-flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 shadow-sm"

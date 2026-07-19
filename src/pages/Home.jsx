@@ -93,7 +93,7 @@ export default function Home() {
         // Gabungkan dengan draf Blok 2
         const payloadKeluarga = keluargaSiapSync.map(keluarga => {
           const blok2Terkait = drafBlok2Lokal.find(draf => draf.id_keluarga === keluarga.id_keluarga) || {};
-          return { ...keluarga, ...blok2Terkait };
+          return { ...keluarga, ...blok2Terkait, status: 'submitted' };
         });
 
         const listIdKeluargaSync = keluargaSiapSync.map(k => k.id_keluarga);
@@ -103,7 +103,8 @@ export default function Home() {
           listIdKeluargaSync.includes(p.id_keluarga) && 
           p.status_dokumen_blok3 === 'draft'
         );
-
+        console.log(payloadKeluarga);
+        console.log(payloadPenduduk);
         // Upload Keluarga
         const resKeluarga = await fetch('http://localhost:3001/api/keluarga/sync', {
           method: 'POST',

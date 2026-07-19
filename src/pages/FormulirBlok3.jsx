@@ -240,7 +240,7 @@ export default function FormAnggotaKeluarga() {
       id_keluarga: idKeluarga,
       id_penduduk: idPenduduk || finalIdAnggotaKeluarga,
       status_dokumen_blok3: 'draft',
-      synced: false // Cascade Unsync
+      synced: false
     };
 
     if (idPenduduk) {

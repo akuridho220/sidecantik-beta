@@ -62,8 +62,8 @@ export default function FormBlokCatatan() {
       dataKeluargaLokal[indexKeluarga] = {
         ...dataKeluargaLokal[indexKeluarga],
         catatan: catatan,
-        status: 'selesai', // Ubah status menjadi selesai setelah mencapai blok terakhir
-        synced: false // Tandai butuh sinkronisasi ke server
+        status: 'selesai',
+        synced: false
       };
       localStorage.setItem('data_keluarga', JSON.stringify(dataKeluargaLokal));
     }
@@ -108,6 +108,7 @@ export default function FormBlokCatatan() {
       dataKeluargaLokal[indexKeluarga] = {
         ...dataKeluargaLokal[indexKeluarga],
         catatan: catatan,
+        catatan_reject: catatanRevisi,
         status: 'rejected',
         synced: false
       };
