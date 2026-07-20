@@ -12,6 +12,7 @@ import FormulirBlok4 from './pages/FormulirBlok4';
 import ApprovalKadus from './pages/Approval';
 import HomeKadus from './pages/HomeKadus';
 import ListSLS from './pages/ListSLS';
+import DownloadData from './pages/Download';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <div className="w-full max-w-md min-h-screen bg-[#f4f4f3] shadow-xl p-2 relative">
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path='/download' element={< DownloadData />} />
 
           {/* Protected */}
           <Route element={<ProtectedRoute/>}>
